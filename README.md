@@ -32,7 +32,18 @@ El juego procesa las respuestas directamente en tu dispositivo sin intermediario
 5. Pega tu clave en la casilla **API Key**, elige o escribe la materia que quieres aprender y presiona **Enviar Mensaje**.
 
 ---
+## ⚠️ Autopsia de Errores (Troubleshooting)
 
+Si Natsuki colapsa y la interfaz escupe un error genérico, abre el Logcat de Android Studio o la consola del navegador para ver la causa de muerte real. Aquí el diagnóstico forense de los fallos más comunes:
+
+* Error HTTP 404 (NOT_FOUND): Le estás pidiendo al servidor un órgano que no existe. Pasa cuando inventas versiones de modelos en la URL. Verifica que ai_services.js apunte estrictamente a gemini-3.5-flash.
+* Error HTTP 400 (Bad Request): Tu cliente le mandó una aberración deforme a Google. El cuerpo del JSON está mal estructurado o le faltan propiedades obligatorias.
+* Error HTTP 403 (Forbidden): El servidor te rompió las piernas en la entrada. Tu API Key es inválida, te comiste un carácter al copiarla, o Google bloqueó tu proyecto por abuso.
+* Error HTTP 503 (Service Unavailable): Los servidores de Google están en llamas o saturados. Tu código está bien, pero la infraestructura de la API colapsó temporalmente. Déjala respirar unos minutos y vuelve a intentarlo.
+* Failed to fetch / NetworkError: El cadáver ni siquiera llegó al hospital. La petición murió localmente porque tu dispositivo no tiene conexión a internet o porque Android bloqueó el tráfico. Reinstala la app en limpio para forzar la lectura del permiso INTERNET.
+* ERR_CLEARTEXT_NOT_PERMITTED: El sistema operativo bloqueó la conexión por intentar usar una ruta HTTP insegura. Todas las llamadas a la API deben usar HTTPS.
+
+* 
 ## 🛠️ Para Desarrolladores y Modders (Compilación Local)
 
 Si quieres inspeccionar las entrañas del proyecto, cambiar la música, agregar a Monika, Yuri o Sayori, o generar tu propio binario firmado:
