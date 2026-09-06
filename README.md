@@ -1,11 +1,11 @@
 # 🌸 Doki Doki Study Club! (Port Android & Web) 🧁✨
---
+
 [![Doki Doki Study Club tutorial](https://img.youtube.com/vi/jBb_K5g2S1E/hqdefault.jpg)](https://youtube.com/shorts/jBb_K5g2S1E)
---
+
 ¡Bienvenido al club de literatura más caótico y educativo del ciberespacio!  
 **Doki Doki Study Club!** es una adaptación interactiva inspirada en el universo de *Doki Doki Literature Club!*, reconstruida para ejecutarse como aplicación nativa en dispositivos modernos con **Android 14 (API 34) o superior**, además de correr directamente en cualquier navegador web.
 
-Nuestra querida y gruñona **Natsuki** toma el papel de tutora académica personalizada, impulsada directamente por el modelo **Gemini 3.5 Flash** de Google.
+Elige a tu tutora académica favorita (**Natsuki**, **Yuri**, **Monika**, **Sayori** o slots personalizados), cada una con sus propios estados emocionales dinámicos, respuestas canónicas y cerebro impulsado directamente por el modelo **Gemini 3.5 Flash** de Google.
 
 ---
 
@@ -21,83 +21,112 @@ Para instalar el juego en tu teléfono sin necesidad de compilar código:
 
 ---
 
-## 🔑 Cómo Despertar a Natsuki (Configuración de la API)
+## 🔑 Despertar a las Dokis (Configuración de la API)
 
-El juego procesa las respuestas directamente en tu dispositivo sin intermediarios. Para darle vida al cerebro de silicio de Natsuki necesitas una clave de acceso gratuita de Google:
+El juego procesa las respuestas directamente en tu dispositivo sin servidores intermediarios. Para conectar la IA necesitas una clave de acceso gratuita de Google:
 
 1. Ingresa a **Google AI Studio**: [https://aistudio.google.com/](https://aistudio.google.com/)
 2. Inicia sesión con tu cuenta de Google y pulsa el botón **Get API key**.
-3. Haz clic en **Create API key** y copia la cadena generada (funciona tanto con el formato clásico `AIzaSy...` como con el estándar moderno `AQ...`).
-4. Abre la aplicación en tu celular o navegador.
-5. Pega tu clave en la casilla **API Key**, elige o escribe la materia que quieres aprender y presiona **Enviar Mensaje**.
+3. Haz clic en **Create API key** y copia la cadena generada (compatible con el formato clásico `AIzaSy...` y el estándar `AQ...`).
+4. Abre la aplicación en tu celular o navegador y ve a la pestaña lateral **Ajustes > IA & Prompts**.
+5. Pega tu clave en la casilla **API Key Personal**, selecciona o añade una materia y pulsa **Nueva Lección**.
 
----
 ---
 
 ## ⚠️ Autopsia de Errores (Troubleshooting)
 
-Si la interfaz colapsa, Natsuki te escupirá un mensaje de error personalizado. Aquí tienes la traducción de sus insultos a fallos técnicos reales para que revises el Logcat o la consola web:
+Si la sesión colapsa, la tutora en turno o la interfaz escupirán un mensaje de fallo. Aquí tienes la traducción a términos de Logcat y consola web:
 
-* "El API colapsó en un charco de sangre uwu. Revisa tu llave o tu conexión a internet."
-  Causa técnica (Failed to fetch / NetworkError): El cadáver ni siquiera llegó al servidor. La petición murió localmente porque tu dispositivo no tiene conexión, o Android bloqueó el tráfico por faltar el permiso de INTERNET.
+* **"El API colapsó en un charco de sangre uwu. Revisa tu llave o tu conexión a internet."**  
+  *Causa técnica (`Failed to fetch` / `NetworkError`):* El paquete no llegó al servidor. La petición murió localmente porque el dispositivo no tiene conexión a red, o Android bloqueó el tráfico por faltar el permiso de red en el manifiesto.
 
-* "Fallo de conexión crítico. Idiota." / "Mi cerebro de silicio está frito uwu."
-  Causa técnica (Error HTTP 400 / 403): Google te rompió las piernas en la entrada. Tu API Key es inválida, te comiste un carácter al copiarla, o tu cliente mandó un JSON mal estructurado que el servidor rechazó.
+* **"Fallo de conexión crítico. Idiota." / "Mi cerebro de silicio está frito uwu."**  
+  *Causa técnica (Error HTTP 400 / 403):* La API Key es inválida, le faltan caracteres o el cuerpo JSON de la petición fue rechazado por las políticas de Google AI Studio.
 
-* "El servidor murió o las API Keys colapsaron uwu."
-  Causa técnica (Error HTTP 404 / 503): Ocurre por dos razones. Uno (404): Le estás pidiendo un modelo fantasma (verifica que uses estrictamente gemini-3.5-flash). Dos (503): Los servidores de Google están en llamas o saturados temporalmente; espera unos minutos.
+* **"El servidor murió o las API Keys colapsaron uwu."**  
+  *Causa técnica (Error HTTP 404 / 503):* El endpoint no encontró el modelo especificado (comprueba que apunte a `gemini-3.5-flash`), o los servidores de Google se encuentran temporalmente saturados.
 
-* ERR_CLEARTEXT_NOT_PERMITTED (Solo en Android Studio)
-  El sistema operativo bloqueó la conexión por intentar usar una ruta HTTP insegura. Todas las llamadas a la API de Google deben usar HTTPS obligatoriamente.
+* **ERR_CLEARTEXT_NOT_PERMITTED (Solo en Android Studio)**  
+  El sistema operativo bloqueó la conexión por intentar comunicarse mediante HTTP inseguro. Toda petición debe ir cifrada mediante HTTPS.
 
-* 
+---
+
 ## 🛠️ Para Desarrolladores y Modders (Compilación Local)
 
-Si quieres inspeccionar las entrañas del proyecto, cambiar la música, agregar a Monika, Yuri o Sayori, o generar tu propio binario firmado:
+Si deseas modificar los prompts, integrar nuevos trajes, añadir pistas de audio o generar un APK firmado propio:
 
 ### 1. Clonar el repositorio
 ```bash
 git clone [https://github.com/MegatronF0id5la4yer/Doki-Doki-study-club.git](https://github.com/MegatronF0id5la4yer/Doki-Doki-study-club.git)
-2. Abrir en Android Studio
-​Abre Android Studio y pulsa en Open.
-​Selecciona la carpeta del proyecto para que Gradle descargue las dependencias y sincronice el entorno.
-​Verifica que la carpeta assets contenga todo el frontend (index.html, ai_services.js, carpetas img y music) en:
-app/src/main/assets/
-​3. Compilar el APK
-​Prueba rápida: Conecta tu dispositivo con Android 14 por depuración USB y presiona Run 'app' (Shift + F10).
-​Generar paquete final: Ve al menú superior Build > Build Bundle(s) / APK(s) > Build APK(s).
+```
+
+### 2. Abrir en Android Studio
+1. Abre Android Studio y selecciona **Open**.
+2. Elige la carpeta del proyecto para que Gradle sincronice dependencias.
+3. Comprueba que la carpeta `assets` contenga todo el frontend (`index.html`, `ai_services.js`, `img/`, `music/`) dentro de:
+   ```text
+   app/src/main/assets/
+   ```
+
+### 3. Compilar el APK
+* **Prueba rápida:** Conecta tu dispositivo por depuración USB y presiona **Run 'app'** (`Shift + F10`).
+* **Generar binario final:** Ve al menú **Build > Build Bundle(s) / APK(s) > Build APK(s)**.
+
+---
+
+## 📦 Radiografía de los Componentes Clave
+
+```text
 DokiDokiStudyClub/
 │
 ├── app/
-Funcionamiento Interno
-​ai_services.js (Lógica de IA):
-Implementa la función asíncrona enviarMensaje. Prepara el payload contents, inyecta el promptSistema con la personalidad tsundere de Natsuki y conecta directamente con el endpoint v1beta utilizando el encabezado x-goog-api-key. Si una llave es inválida o falla, el sistema maneja la excepción sin colapsar la interfaz.
-​MainActivity.java (Puente Android):
-Monta un contenedor WebView blindado para la ejecución local:
-​Activa la ejecución de scripts (setJavaScriptEnabled(true)).
-​Habilita las políticas setAllowUniversalAccessFromFileURLs(true) y setAllowFileAccessFromFileURLs(true) para permitir llamadas salientes HTTPS desde el protocolo file:///android_asset/.
-​Oculta el ActionBar superior para ofrecer una experiencia en pantalla completa limpia y envolvente.
-​AndroidManifest.xml (Permisos):
-Otorga la directiva <uses-permission android:name="android.permission.INTERNET" /> para que el sistema operativo permita el tráfico saliente hacia los servidores de Google.
-​index.html (Escenario del Club):
-Controla los eventos multimedia, el bucle de la banda sonora, los cuadros de diálogo interactivos y la captura de credenciales del jugador.
-​⚙️ Ficha Técnica
-​Modelo de IA: Gemini 3.5 Flash (gemini-3.5-flash) mediante conexión directa REST.
-​Compatibilidad: Android 14.0 (API 34) o superior; navegadores web modernos (Chrome, Firefox, Brave, Edge).
-​Autenticación: Encabezado HTTP x-goog-api-key universal (compatible con prefijos AQ... y AIzaSy...).
-​Seguridad: Repositorio y binarios 100% limpios de credenciales hardcodeadas; cada usuario administra su cuota.
-​📄 Créditos y Descargo de Responsabilidad
-​Personajes, escenarios, música y recursos gráficos pertenecen originalmente a Team Salvato (Doki Doki Literature Club!).
-​Este es un proyecto tributo de código abierto, desarrollado sin fines de lucro con propósitos educativos y de entretenimiento. No existe afiliación oficial con Team Salvato ni con Google.
 │   ├── src/main/
-│   │   ├── AndroidManifest.xml       # Permisos de red INTERNET y temas del sistema
-│   │   ├── java/.../MainActivity.java # Contenedor WebView con soporte de red local
-│   │   ├── res/                      # Íconos mipmap, layouts XML y estilos visuales
-│   │   └── assets/                   # Entorno web ejecutado por la aplicación
-│   │       ├── index.html            # Interfaz visual del club, sprites y cajas de texto
-│   │       ├── ai_services.js        # Motor de conexión REST directa con Gemini 3.5 Flash
-│   │       ├── img/                  # Expresiones, poses de Natsuki y fondos del aula
-│   │       └── music/                # Temas ambientales y efectos de sonido en loop
-│   └── build.gradle                  # Configuración orientada a Android 14 (API 34+)
+│   │   ├── AndroidManifest.xml        # Permisos de red (INTERNET)
+│   │   ├── java/.../MainActivity.java  # Contenedor WebView con acceso a assets locales
+│   │   ├── res/                       # Iconos de la app y recursos nativos
+│   │   └── assets/                    # Núcleo del frontend
+│   │       ├── index.html             # Interfaz visual, selector táctico y máquina de estados
+│   │       ├── ai_services.js         # Cliente REST modular para Gemini 3.5 Flash
+│   │       ├── img/                   # Fondos y carpetas de sprites estructuradas
+│   │       │   ├── bg/
+│   │       │   ├── natsuki escuela/
+│   │       │   ├── natsuki casual/
+│   │       │   ├── yuri escuela/
+│   │       │   ├── yuri casual/
+│   │       │   ├── monika escuela/
+│   │       │   ├── sayori escuela/
+│   │       │   ├── sayori casual/
+│   │       │   └── personaje personalizado 1..5/
+│   │       └── music/                 # BGM ambiental y pistas del club
+│   └── build.gradle                   # Target para Android 14 (API 34+)
 │
-└── README.md                         # Documentación del club
+└── README.md
+```
+
+### Funcionamiento Interno
+
+* **`ai_services.js` (Motor de IA Modular):**  
+  Implementa la función asíncrona `enviarMensaje(modelo, apiKey, promptUsuario, promptSistema)`. Prepara el payload `contents`, autentica mediante el encabezado `x-goog-api-key` y entrega el contenido limpio listo para parsear en JSON.
+* **`index.html` (Lógica y Máquina de Estados):**  
+  Maneja la selección rectangular de tutoras, el cambio dinámico de atuendos escolares/casuales, el mapeo de los 5 estados de ánimo (`normal`, `pensando`, `examen`, `feliz`, `molesta`), la inyección automática del *System Prompt* según el personaje activo y la gestión de niveles por materia.
+* **`MainActivity.java` (Puente WebView):**  
+  Configura el navegador embebido habilitando JavaScript (`setJavaScriptEnabled(true)`) y otorgando acceso cruzado a los recursos empaquetados (`setAllowFileAccessFromFileURLs(true)` y `setAllowUniversalAccessFromFileURLs(true)`), permitiendo peticiones HTTPS hacia Google AI desde `file:///android_asset/`.
+* **`AndroidManifest.xml` (Permisos):**  
+  Declara `<uses-permission android:name="android.permission.INTERNET" />` para que el sistema operativo permita la salida de tráfico hacia las APIs de Google.
+
+---
+
+## ⚙️ Ficha Técnica
+
+* **Modelo de IA:** Gemini 3.5 Flash (`gemini-3.5-flash`) mediante conexión directa REST.
+* **Formato Gráfico:** WebP (`.webp`) estructurado en 5 emociones por variante de ropa.
+* **Compatibilidad:** Android 14.0 (API 34) o superior; navegadores web modernos basados en Chromium o Firefox.
+* **Autenticación:** Encabezado HTTP `x-goog-api-key` universal.
+* **Seguridad:** Repositorio y binarios limpios de claves; cada usuario gestiona su propia API Key en almacenamiento local (`localStorage`).
+
+---
+
+## 📄 Créditos y Descargo de Responsabilidad
+
+* Personajes, fondos, música y conceptos pertenecen originalmente a **Team Salvato** (*Doki Doki Literature Club!*).
+* Este es un proyecto tributo de código abierto, desarrollado sin fines de lucro con propósitos educativos y de entretenimiento. No existe afiliación oficial con Team Salvato ni con Google.
