@@ -1,7 +1,7 @@
 # 🌸 Doki Doki Study Club! (Port Android & Web) 🧁✨
-
-[![Doki Doki Study Club tutorial](https://youtube.com/shorts/jBb_K5g2S1E?si=WFgfEUsLTuoTsqmX)
-
+--
+[![Doki Doki Study Club tutorial](https://img.youtube.com/vi/jBb_K5g2S1E/hqdefault.jpg)](https://youtube.com/shorts/jBb_K5g2S1E)
+--
 ¡Bienvenido al club de literatura más caótico y educativo del ciberespacio!  
 **Doki Doki Study Club!** es una adaptación interactiva inspirada en el universo de *Doki Doki Literature Club!*, reconstruida para ejecutarse como aplicación nativa en dispositivos modernos con **Android 14 (API 34) o superior**, además de correr directamente en cualquier navegador web.
 
