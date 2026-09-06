@@ -32,16 +32,23 @@ El juego procesa las respuestas directamente en tu dispositivo sin intermediario
 5. Pega tu clave en la casilla **API Key**, elige o escribe la materia que quieres aprender y presiona **Enviar Mensaje**.
 
 ---
+---
+
 ## ⚠️ Autopsia de Errores (Troubleshooting)
 
-Si Natsuki colapsa y la interfaz escupe un error genérico, abre el Logcat de Android Studio o la consola del navegador para ver la causa de muerte real. Aquí el diagnóstico forense de los fallos más comunes:
+Si la interfaz colapsa, Natsuki te escupirá un mensaje de error personalizado. Aquí tienes la traducción de sus insultos a fallos técnicos reales para que revises el Logcat o la consola web:
 
-* Error HTTP 404 (NOT_FOUND): Le estás pidiendo al servidor un órgano que no existe. Pasa cuando inventas versiones de modelos en la URL. Verifica que ai_services.js apunte estrictamente a gemini-3.5-flash.
-* Error HTTP 400 (Bad Request): Tu cliente le mandó una aberración deforme a Google. El cuerpo del JSON está mal estructurado o le faltan propiedades obligatorias.
-* Error HTTP 403 (Forbidden): El servidor te rompió las piernas en la entrada. Tu API Key es inválida, te comiste un carácter al copiarla, o Google bloqueó tu proyecto por abuso.
-* Error HTTP 503 (Service Unavailable): Los servidores de Google están en llamas o saturados. Tu código está bien, pero la infraestructura de la API colapsó temporalmente. Déjala respirar unos minutos y vuelve a intentarlo.
-* Failed to fetch / NetworkError: El cadáver ni siquiera llegó al hospital. La petición murió localmente porque tu dispositivo no tiene conexión a internet o porque Android bloqueó el tráfico. Reinstala la app en limpio para forzar la lectura del permiso INTERNET.
-* ERR_CLEARTEXT_NOT_PERMITTED: El sistema operativo bloqueó la conexión por intentar usar una ruta HTTP insegura. Todas las llamadas a la API deben usar HTTPS.
+* "El API colapsó en un charco de sangre uwu. Revisa tu llave o tu conexión a internet."
+  Causa técnica (Failed to fetch / NetworkError): El cadáver ni siquiera llegó al servidor. La petición murió localmente porque tu dispositivo no tiene conexión, o Android bloqueó el tráfico por faltar el permiso de INTERNET.
+
+* "Fallo de conexión crítico. Idiota." / "Mi cerebro de silicio está frito uwu."
+  Causa técnica (Error HTTP 400 / 403): Google te rompió las piernas en la entrada. Tu API Key es inválida, te comiste un carácter al copiarla, o tu cliente mandó un JSON mal estructurado que el servidor rechazó.
+
+* "El servidor murió o las API Keys colapsaron uwu."
+  Causa técnica (Error HTTP 404 / 503): Ocurre por dos razones. Uno (404): Le estás pidiendo un modelo fantasma (verifica que uses estrictamente gemini-3.5-flash). Dos (503): Los servidores de Google están en llamas o saturados temporalmente; espera unos minutos.
+
+* ERR_CLEARTEXT_NOT_PERMITTED (Solo en Android Studio)
+  El sistema operativo bloqueó la conexión por intentar usar una ruta HTTP insegura. Todas las llamadas a la API de Google deben usar HTTPS obligatoriamente.
 
 * 
 ## 🛠️ Para Desarrolladores y Modders (Compilación Local)
