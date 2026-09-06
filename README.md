@@ -3,7 +3,7 @@
 ¡Bienvenido al club de literatura más caótico y educativo del ciberespacio!  
 **Doki Doki Study Club!** es una adaptación interactiva inspirada en el universo de *Doki Doki Literature Club!*, reconstruida para ejecutarse como aplicación nativa en dispositivos modernos con **Android 14 (API 34) o superior**, además de correr directamente en cualquier navegador web.
 
-Nuestra querida y gruñona **Natsuki** toma el papel de tutora académica personalizada, impulsada directamente por el modelo de última generación **Gemini 3.5 Flash** de Google. Prepárate para explicaciones detalladas, cuestionarios sorpresa y su característico humor ácido, tierno y despiadado.
+Nuestra querida y gruñona **Natsuki** toma el papel de tutora académica personalizada, impulsada directamente por el modelo **Gemini 3.5 Flash** de Google.
 
 ---
 
