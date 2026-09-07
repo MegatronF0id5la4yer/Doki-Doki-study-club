@@ -3,6 +3,7 @@
 
 [![Doki Doki Study Club tutorial](https://img.youtube.com/vi/jBb_K5g2S1E/hqdefault.jpg)](https://youtube.com/shorts/jBb_K5g2S1E)
 ---
+---
 
 SI NO ERES DESARROLADOR SOLO DESCARGA EL ZIP PARA WINDOWS, EL APK PARA ANDROID Y EL ARCHIVO TAR PARA LINUX QUE ESTAN EN EL LINK DE DRIVE ok
 
