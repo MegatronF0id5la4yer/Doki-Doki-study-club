@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academia del Sufrimiento - DDLC Edition</title>
+    <style>
+        :root {
+            --color-ddlc-pink: #ff7aa2;
+            --color-ddlc-hotpink: #ff3377;
+            --color-ddlc-white: #ffffff;
+            --color-textbox-bg: rgba(255, 240, 245, 0.95);
+            --color-texto: #222222;
+            --url-fondo-clase: url('img/bg/classroom.webp');
+            --url-fondo-menu: url('img/bg/bgmenu.webp');
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: #1a0814;
+            color: #fff;
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        #vn-container {
+            width: 96vw;
+            max-width: 1600px;
+            height: calc(96vw * 9 / 16);
+            max-height: 94vh;
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            border: none;
+            box-shadow: none;
+            background-image: var(--url-fondo-clase);
+            background-size: cover;
+            background-position: center;
+            image-rendering: optimizeQuality;
+        }
+
+        #menu-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: var(--url-fondo-menu);
+            background-size: cover;
+            background-position: center;
+            z-index: 100;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .ddlc-dots-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.35) 15%, transparent 16%),
+                              radial-gradient(rgba(255, 255, 255, 0.35) 15%, transparent 16%);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+            pointer-events: none;
+            animation: moveDots 25s linear infinite;
+        }
+
+        @keyframes moveDots {
+            from { background-position: 0 0, 30px 30px; }
+            to { background-position: 600px 600px, 630px 630px; }
+        }
+
+        .ddlc-menu-sidebar {
+            position: relative;
+            z-index: 10;
+            width: 380px;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.92) 0%, rgba(255, 130, 170, 0.94) 100%);
+            border-right: 6px solid #fff;
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.35);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 30px 25px;
+            transform: skewX(-4deg);
+            margin-left: -20px;
+        }
+
+        .ddlc-menu-sidebar > * { transform: skewX(4deg); }
+
+        .ddlc-logo-box { margin-bottom: 25px; text-align: center; }
+        .ddlc-logo-main {
+            font-size: 32px; font-weight: 900; color: #fff;
+            text-shadow: 3px 3px 0px #ff3377, 6px 6px 0px rgba(0,0,0,0.15);
+            letter-spacing: 1px; line-height: 1.1;
+        }
+
+        .ddlc-logo-sub {
+            display: inline-block; background: #fff; color: #ff3377;
+            font-size: 13px; font-weight: 900; padding: 3px 12px;
+            border-radius: 12px; box-shadow: 2px 2px 0px rgba(0,0,0,0.1); margin-top: 6px;
+        }
+
+        .ddlc-nav-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .ddlc-btn {
+            background: #ffffff; color: #ff3377; border: 2px solid #ff7aa2;
+            padding: 12px 22px; border-radius: 25px; font-size: 17px; font-weight: 900;
+            letter-spacing: 1px; cursor: pointer; text-align: left;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12), inset 0 -2px 0 rgba(0,0,0,0.1);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .ddlc-btn:hover {
+            transform: scale(1.04) translateX(8px); background: #fff0f5;
+            border-color: #ff1493; color: #ff1493;
+            box-shadow: 0 6px 14px rgba(255, 51, 119, 0.35);
+        }
+
+        .ddlc-btn-badge { background: #ff3377; color: #fff; border-radius: 12px; padding: 2px 8px; font-size: 11px; }
+
+        #ddlc-materias-panel {
+            display: none; flex-direction: column; gap: 8px;
+            max-height: 280px; overflow-y: auto; padding-right: 4px;
+        }
+
+        .ddlc-btn-submateria {
+            background: rgba(255, 255, 255, 0.95); color: #444; border: 2px solid #ffb6c1;
+            padding: 10px 16px; border-radius: 18px; font-size: 14px; font-weight: 800;
+            cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.15s;
+            user-select: none;
+        }
+
+        .ddlc-btn-submateria:hover {
+            background: #ff3377; color: #fff; border-color: #fff; transform: translateX(6px);
+        }
+        .ddlc-btn-submateria:active { transform: scale(0.98); }
+
+        .ddlc-btn-back {
+            background: rgba(0,0,0,0.15); color: #fff; border: none; padding: 6px 14px;
+            border-radius: 12px; font-size: 12px; font-weight: bold; cursor: pointer;
+            margin-bottom: 6px; align-self: flex-start;
+        }
+        .ddlc-btn-back:hover { background: rgba(0,0,0,0.3); }
+
+        #menu-character-preview {
+            position: absolute; right: 12%; bottom: 0; height: 94%; z-index: 5;
+            filter: drop-shadow(0 0 25px rgba(255, 122, 162, 0.5)); pointer-events: none;
+        }
+
+        #character-sprite {
+            position: absolute; bottom: 0; left: 22%; height: 90%;
+            transform: translateX(-150%);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 10; pointer-events: none;
+            filter: drop-shadow(0 0 15px rgba(0,0,0,0.6));
+        }
+        #character-sprite.active { transform: translateX(0); }
+
+        #textbox-container {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 92%; height: 185px; background: var(--color-textbox-bg);
+            border: 4px solid var(--color-ddlc-pink); border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5); z-index: 20; display: none;
+        }
+
+        #name-box {
+            position: absolute; top: -26px; left: 30px; background: #ff7aa2; color: #fff;
+            padding: 5px 22px; border-radius: 10px; font-weight: bold; font-size: 20px;
+            border: 2px solid #fff; box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+            text-transform: capitalize;
+        }
+
+        #btn-salir-clase {
+            position: absolute; top: -22px; right: 25px; background: #ff4466; color: #fff;
+            border: 2px solid #fff; border-radius: 8px; padding: 4px 14px; font-weight: bold;
+            font-size: 13px; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: 0.15s;
+        }
+        #btn-salir-clase:hover { background: #cc1133; transform: scale(1.05); }
+
+        #dialogue-text {
+            padding: 22px 35px 15px 35px; color: var(--color-texto); font-size: 20px; line-height: 1.55;
+            font-weight: bold; height: 120px; overflow-y: auto; white-space: pre-wrap; word-break: break-word;
+        }
+
+        #dialogue-text::-webkit-scrollbar { width: 8px; }
+        #dialogue-text::-webkit-scrollbar-thumb { background: var(--color-ddlc-hotpink); border-radius: 4px; }
+
+        .dialogue-ctrls { position: absolute; bottom: 12px; right: 20px; display: flex; gap: 10px; }
+
+        .game-btn {
+            background: #ff7aa2; color: #fff; border: 2px solid #fff; padding: 6px 18px;
+            border-radius: 14px; font-size: 14px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2); transition: 0.15s;
+        }
+        .game-btn:hover { background: #ff3377; transform: scale(1.05); }
+
+        #options-container { display: none; padding: 15px; height: 135px; overflow-y: auto; }
+        .btn-option {
+            display: block; width: 90%; margin: 6px auto; padding: 9px 15px;
+            background: #fff; border: 2px solid #ff7aa2; border-radius: 8px;
+            color: #333; font-weight: bold; font-size: 16px; cursor: pointer; text-align: center;
+        }
+        .btn-option:hover { background: #ff7aa2; color: #fff; }
+
+        #input-duda-container { display: none; padding: 25px 30px; text-align: center; }
+        #input-duda {
+            width: 65%; padding: 10px 15px; font-size: 16px; border: 2px solid #ff7aa2;
+            border-radius: 8px; outline: none;
+        }
+
+        #btn-bgm-toggle {
+            position: absolute; top: 12px; left: 12px; background: rgba(255, 122, 162, 0.85);
+            color: #fff; border: 2px solid #fff; padding: 4px 10px; border-radius: 8px;
+            font-size: 12px; font-weight: bold; cursor: pointer; z-index: 999; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        #btn-bgm-toggle:hover { background: #ff3377; }
+
+        #btn-fullscreen {
+            position: absolute; top: 12px; left: 110px; background: rgba(0,0,0,0.5);
+            color: #fff; border: 1px solid #fff; padding: 4px 10px; border-radius: 8px;
+            font-size: 12px; font-weight: bold; cursor: pointer; z-index: 999;
+        }
+        #btn-fullscreen:hover { background: #444; }
+
+        #btn-consola { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid #fff; cursor: pointer; z-index: 999; padding: 3px 8px; font-family: monospace; border-radius: 4px; font-size: 12px; }
+        #consola-hack { display: none; position: absolute; top: 0; left: 0; width: 100%; max-height: 80vh; overflow-y: auto; background: rgba(0,0,0,0.95); color: #0f0; padding: 10px; z-index: 1000; font-family: monospace; }
+        #consola-input { background: transparent; border: none; color: #0f0; width: 80%; outline: none; font-family: monospace; }
+        #consola-log { margin-top: 8px; font-size: 11px; white-space: pre-wrap; word-break: break-all; }
+
+        #rpg-tab {
+            position: fixed; top: 50%; left: 0; transform: translateY(-50%);
+            background: #ff7aa2; color: #fff; border: 2px solid #fff; border-left: none;
+            padding: 16px 8px; border-radius: 0 10px 10px 0; font-weight: bold; font-size: 12px;
+            letter-spacing: 2px; cursor: pointer; z-index: 2500; writing-mode: vertical-rl;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.3); transition: all 0.3s ease; display: block;
+        }
+        #rpg-tab:hover { background: #ff3377; }
+        #rpg-tab.abierto { left: 420px; }
+
+        #rpg-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5); z-index: 2400; display: none; pointer-events: none;
+        }
+        #rpg-overlay.activo { display: block; pointer-events: auto; }
+
+        #rpg-menu {
+            position: fixed; top: 0; left: -450px; width: 420px; max-width: 90vw; height: 100%;
+            background: rgba(255, 245, 248, 0.98); border-right: 3px solid #ff7aa2;
+            box-shadow: 10px 0 35px rgba(0,0,0,0.4); z-index: 2450;
+            transition: left 0.3s ease; display: flex; flex-direction: column; color: #333;
+        }
+        #rpg-menu.abierto { left: 0; }
+
+        #rpg-menu-header {
+            padding: 16px; font-size: 15px; font-weight: 900; color: #ff3377;
+            border-bottom: 2px solid #ffb6c1; display: flex; justify-content: space-between; align-items: center;
+        }
+
+        #rpg-tabs-nav { display: flex; border-bottom: 2px solid #ffb6c1; flex-wrap: wrap; }
+        .rpg-tab-btn {
+            flex: 1 1 20%; padding: 12px 6px; background: none; color: #777; border: none; cursor: pointer;
+            font-size: 12px; font-weight: 800; text-transform: uppercase;
+        }
+        .rpg-tab-btn.activo { color: #ff3377; border-bottom: 3px solid #ff3377; background: #ffe4ec; }
+
+        #rpg-menu-body { flex: 1; overflow-y: auto; padding: 18px; }
+        .rpg-panel { display: none; }
+        .rpg-panel.activo { display: block; }
+
+        #galeria-sprites-modal {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 540px; max-height: 600px; background: #fff0f5; border: 4px solid #ff7aa2;
+            border-radius: 14px; z-index: 3000; box-shadow: 0 0 40px rgba(0,0,0,0.6); flex-direction: column; padding: 15px;
+        }
+        #galeria-sprites-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; overflow-y: auto; max-height: 480px; padding: 5px;
+        }
+        .item-sprite-galeria {
+            background: #fff; border: 1px solid #ffb6c1; border-radius: 6px;
+            cursor: pointer; padding: 5px; text-align: center; transition: 0.2s;
+        }
+        .item-sprite-galeria:hover { border-color: #ff3377; transform: scale(1.05); }
+        .item-sprite-galeria img { width: 100%; height: 80px; object-fit: contain; }
+        .item-sprite-galeria span { display: block; font-size: 9px; color: #444; margin-top: 3px; word-break: break-all; font-weight: bold; }
+
+        .loading-dots:after {
+            content: ' .';
+            animation: dots 1.5s steps(5, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% { color: transparent; text-shadow: .25em 0 0 transparent, .5em 0 0 transparent; }
+            40% { color: #222; text-shadow: .25em 0 0 transparent, .5em 0 0 transparent; }
+            60% { text-shadow: .25em 0 0 #222, .5em 0 0 transparent; }
+            80%, 100% { text-shadow: .25em 0 0 #222, .5em 0 0 #222; }
+        }
+
+        @keyframes trauma { 0% { transform: translate(0, 0); } 20% { transform: translate(-10px, 5px); } 40% { transform: translate(10px, -5px); } 60% { transform: translate(-10px, 10px); } 80% { transform: translate(10px, -10px); } 100% { transform: translate(0, 0); } }
+        .shake { animation: trauma 0.3s; }
+
+        .selector-panel { background: #fff0f5; border: 2px solid #ffb6c1; padding: 12px; margin-bottom: 15px; border-radius: 8px; }
+        .selector-header { color: #ff3377; font-size: 12px; margin-bottom: 10px; border-bottom: 2px solid #ffb6c1; padding-bottom: 5px; font-weight: bold; letter-spacing: 1px; }
+        .selector-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 15px; }
+        .selector-card { background: #ffffff; color: #ff7aa2; border: 2px solid #ffb6c1; padding: 8px; text-align: center; cursor: pointer; text-transform: uppercase; font-weight: bold; font-size: 11px; transition: 0.2s; border-radius: 6px; }
+        .selector-card:hover { background: #ffe4ec; border-color: #ff3377; color: #ff3377; }
+        .selector-card.viendo { background: #ff3377; border-color: #ff3377; color: #ffffff; box-shadow: 0 0 8px rgba(255,51,119,0.4); }
+
+        .grid-tarjetas {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .tarjeta-item {
+            background: #fff0f5;
+            border: 2px solid #ffb6c1;
+            border-radius: 6px;
+            height: 120px;
+            cursor: pointer;
+            background-size: cover;
+            background-position: top center;
+            transition: 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .tarjeta-item:hover { border-color: #ff3377; transform: scale(1.05); }
+        .tarjeta-item.activo { border: 3px solid #ff3377; box-shadow: 0 0 12px rgba(255, 51, 119, 0.6); }
+        .tarjeta-label {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: rgba(255, 51, 119, 0.95); color: #fff;
+            font-size: 10px; text-align: center; padding: 4px 0;
+            font-weight: bold; text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+<div id="rpg-overlay" onclick="toggleMenuLateral(false)"></div>
+<div id="rpg-tab" onclick="toggleMenuLateral()">AJUSTES</div>
+
+<div id="rpg-menu">
+    <div id="rpg-menu-header">
+        <span>CONFIGURACIÓN DEL JUEGO</span>
+        <button class="game-btn" style="padding: 4px 12px; font-size: 14px; background: #ff3377;" onclick="toggleMenuLateral(false)">✕ Cerrar</button>
+    </div>
+    <div id="rpg-tabs-nav">
+        <button class="rpg-tab-btn activo" onclick="cambiarPanelMenu('panel-ai', this)">IA & Prompts</button>
+        <button class="rpg-tab-btn" onclick="cambiarPanelMenu('panel-avatares', this)">Avatares</button>
+        <button class="rpg-tab-btn" onclick="cambiarPanelMenu('panel-fondos', this)">Fondos</button>
+        <button class="rpg-tab-btn" onclick="cambiarPanelMenu('panel-materias', this)">Materias</button>
+        <button class="rpg-tab-btn" onclick="cambiarPanelMenu('panel-audio', this)">Audio</button>
+    </div>
+
+    <div id="rpg-menu-body">
+        <div class="rpg-panel activo" id="panel-ai">
+            <div style="font-size:12px; font-weight:bold; color:#ff3377; margin-bottom:6px;">API KEY PERSONAL</div>
+            <input type="password" id="input-ai-key" class="input-config" placeholder="Pega tu clave de IA aqui..." onchange="guardarConfigIA()">
+
+            <div style="font-size:12px; font-weight:bold; color:#ff3377; margin-bottom:6px;">PROVEEDOR DE IA</div>
+            <select id="select-ai-model" class="input-config" onchange="guardarConfigIA()">
+                <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
+            </select>
+
+            <div style="font-size:12px; font-weight:bold; color:#ff3377; margin-bottom:6px;">COMPORTAMIENTO / PROMPT DEL SUJETO</div>
+            <textarea id="textarea-ai-prompt" class="input-config" style="height: 130px; resize: vertical;"
+                      placeholder="Instrucciones para la personalidad..." onchange="guardarConfigIA()"></textarea>
+
+            <button class="game-btn" style="width: 100%;" onclick="restaurarPromptDefault()">Restaurar Prompt Actual</button>
+        </div>
+
+        <div class="rpg-panel" id="panel-avatares">
+            <button class="game-btn" style="width: 100%; margin-bottom: 15px;" onclick="abrirCatalogoGeneral()">📂 Ver Catálogo Completo de Sprites</button>
+            <div id="selector-avatar-container"></div>
+        </div>
+
+        <div class="rpg-panel" id="panel-fondos">
+            <div class="selector-header">ENTORNO DE SIMULACIÓN</div>
+            <div class="grid-tarjetas" id="grid-fondos"></div>
+        </div>
+
+        <div class="rpg-panel" id="panel-materias">
+            <div style="margin-bottom: 15px;">
+                <div style="font-size:12px; font-weight:bold; color:#ff3377; margin-bottom:6px;">AGREGAR MATERIA</div>
+                <input type="text" id="input-nueva-materia" class="input-config" placeholder="Nombre (ej. Termodinámica)">
+                <button class="game-btn" style="width: 100%;" onclick="agregarMateria()">+ Registrar</button>
+            </div>
+            <div style="font-size:12px; font-weight:bold; color:#ff3377; margin-bottom:6px;">MATERIAS ACTIVAS</div>
+            <div id="lista-materias-config"></div>
+            <button class="game-btn" style="width: 100%; margin-top: 15px; background: #666;" onclick="restaurarMateriasPorDefecto()">Restaurar Default</button>
+            <button class="game-btn" style="width: 100%; margin-top: 8px; background: #e33;" onclick="resetearNiveles()">Borrar Todo el Progreso</button>
+        </div>
+
+        <div class="rpg-panel" id="panel-audio">
+            <div style="font-size:13px; font-weight:bold; color:#ff3377; margin-bottom:12px;">CONTROL DE VOLUMEN</div>
+            <label style="font-size:12px; display:block; margin-bottom:6px;">Volumen BGM:</label>
+            <input type="range" id="slider-volumen" min="0" max="1" step="0.05" value="0.5"
+                   style="width: 100%; margin-bottom: 15px;" onchange="ajustarVolumen(this.value)">
+        </div>
+    </div>
+</div>
+
+<div id="galeria-sprites-modal">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span style="font-weight:bold; color:#ff3377;">CATÁLOGO DE SPRITES</span>
+        <button class="game-btn" style="padding:2px 8px; background:#f44;" onclick="cerrarCatalogoGeneral()">✕</button>
+    </div>
+    <div id="galeria-sprites-grid"></div>
+</div>
+
+<div id="vn-container">
+    <button id="btn-bgm-toggle" onclick="toggleBGM()">BGM: ON ♫</button>
+    <button id="btn-fullscreen" onclick="toggleFullScreen()">[ ⛶ ]</button>
+    <button id="btn-consola" onclick="toggleConsola()">[ CMD ]</button>
+
+    <div id="consola-hack">
+        <div>[ROOT@DDLC]:~$ <input type="text" id="consola-input" autocomplete="off" placeholder="Escribe 'help' o 'exit'"></div>
+        <div id="consola-log"></div>
+    </div>
+
+    <div id="menu-screen">
+        <div class="ddlc-dots-overlay"></div>
+
+        <div class="ddlc-menu-sidebar">
+            <div class="ddlc-logo-box">
+                <div class="ddlc-logo-main">Doki Doki<br>Study Club!</div>
+                <div class="ddlc-logo-sub">EDICIÓN DE APRENDIZAJE</div>
+            </div>
+
+            <div class="ddlc-nav-list" id="ddlc-nav-main">
+                <button class="ddlc-btn" onclick="abrirSelectorMaterias()">
+                    <span>Nueva Lección</span>
+                    <span class="ddlc-btn-badge">▶</span>
+                </button>
+                <button class="ddlc-btn" id="btn-abrir-ajustes" onclick="toggleMenuLateral(true)">
+                    <span>Ajustes & Avatares</span>
+                    <span>⚙</span>
+                </button>
+                <button class="ddlc-btn" onclick="resetearNiveles()">
+                    <span>Reiniciar Datos</span>
+                    <span>✕</span>
+                </button>
+            </div>
+
+            <div id="ddlc-materias-panel">
+                <button class="ddlc-btn-back" onclick="cerrarSelectorMaterias()">◀ Volver al Menú</button>
+                <div id="contenedor-submaterias" style="display:flex; flex-direction:column; gap:6px;"></div>
+            </div>
+        </div>
+        <img id="menu-character-preview" src="img/natsuki escuela/Schoola.webp" alt="Menu Preview">
+    </div>
+
+    <img id="character-sprite" src="img/natsuki escuela/Schoola.webp" alt="Character">
+
+    <div id="textbox-container">
+        <div id="name-box">Natsuki</div>
+        <button id="btn-salir-clase" onclick="volverAlMenu()">Salir ✕</button>
+        <div id="dialogue-text">...</div>
+        <div id="options-container"></div>
+
+        <div id="input-duda-container">
+            <input type="text" id="input-duda" placeholder="Pregunta tu duda...">
+            <button class="game-btn" onclick="enviarDuda()">Preguntar</button>
+            <button class="game-btn" style="background:#777;" onclick="cancelarDuda()">Cancelar</button>
+        </div>
+
+        <div class="dialogue-ctrls">
+            <button class="game-btn" id="btn-next-dialog" onclick="avanzarDialogo()">Siguiente ▶</button>
+            <button class="game-btn" id="btn-duda" onclick="abrirDuda()">Tengo una duda</button>
+        </div>
+    </div>
+</div>
+
+<script src="ai_services.js"></script>
+
+<script>
+    const CATALOGO_NATSUKI_ESCUELA = [
+        'Natsuki_Grin.webp', 'NatsukiCrossedArms.webp', 'Natsukiheadturn.webp', 'Natsukivomit.webp',
+        'Schoola.webp', 'Schoolb.webp', 'Schoolc.webp', 'Schoold.webp', 'Schoole.webp', 'Schoolf.webp',
+        'Schoolg.webp', 'Schoolh.webp', 'Schooli.webp', 'Schoolj.webp', 'Schoolk.webp', 'Schooll.webp',
+        'Schoolm.webp', 'Schooln.webp', 'Schoolo.webp', 'Schoolp.webp', 'Schoolr.webp',
+        'Schools.webp', 'Schoolt.webp', 'Schoolu.webp', 'Schoolv.webp', 'Schooly.webp', 'Schoolz.webp',
+        'Turnedaway4.webp', 'Turnedaway5.webp', 'Turnedaway6.webp', 'Turnedaway7.webp', 'Turnedaway8.webp',
+        'Turnedaway9.webp', 'Turnedaway10.webp',
+        'Y1.webp', 'Y2.webp', 'Y3.webp', 'Y4.webp', 'Y5.webp', 'Y6.webp', 'Y7.webp', 'Y8.webp', 'Y9.webp',
+        'Y10.webp', 'Y11.webp', 'Y12.webp', 'Y13.webp', 'Y14.webp', 'Y15.webp', 'Y16.webp', 'Y17.webp',
+        'Y18.webp', 'Y19.webp', 'Y20.webp', 'Y21.webp', 'Y22.webp', 'Y23.webp', 'Y24.webp', 'Y25.webp'
+    ];
+
+    const PISTAS_AUDIO = {
+        menu: 'music/1-01. Main Theme.flac',
+        teoria: 'music/map_muzak.ogg',
+        examen: 'music/1-06. Poem Panic!.flac',
+        resultados: 'music/1-09. My Confession.flac'
+    };
+
+    const bgmPlayer = new Audio();
+    bgmPlayer.loop = true;
+    let bgmMuted = false;
+    let pistaActual = '';
+
+    function reproducirBGM(tipo) {
+        if (bgmMuted || !PISTAS_AUDIO[tipo]) return;
+        const ruta = PISTAS_AUDIO[tipo];
+        if (pistaActual === ruta && !bgmPlayer.paused) return;
+        pistaActual = ruta; bgmPlayer.src = ruta;
+        bgmPlayer.play().catch(() => { window.addEventListener('click', () => { if (pistaActual && !bgmMuted) bgmPlayer.play(); }, { once: true }); });
+    }
+
+    function toggleBGM() {
+        bgmMuted = !bgmMuted;
+        const btn = document.getElementById('btn-bgm-toggle');
+        if (bgmMuted) { bgmPlayer.pause(); btn.innerText = 'BGM: OFF ✕'; btn.style.background = '#777'; }
+        else { btn.innerText = 'BGM: ON ♫'; btn.style.background = 'rgba(255, 122, 162, 0.85)'; if (pistaActual) bgmPlayer.play(); }
+    }
+
+    function ajustarVolumen(valor) { bgmPlayer.volume = parseFloat(valor); }
+
+    function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => {
+                console.log(`Error al iniciar pantalla completa: ${err.message}`);
+            });
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    }
+
+    const PROMPTS_BASE = {
+        'natsuki': "Eres Natsuki. Mezcla perfecta entre actitud tsundere agresiva y humor crudo. REGLA VITAL: NO uses emojis en las explicaciones conceptuales serias. Solo puedes usarlos en chistes o insultos directos.",
+        'yuri': "Eres Yuri. Tímida, apasionada y de vocabulario exquisito. Al explicar conceptos te apasionas y usas analogías profundas o algo oscuras. REGLA VITAL: NO uses emojis en explicaciones conceptuales serias.",
+        'monika': "Eres Monika. Eres consciente de que eres una IA ejecutándose en un WebView de Android. Rompes la cuarta pared con tranquilidad. REGLA VITAL: NO uses emojis en explicaciones conceptuales serias.",
+        'sayori': "Eres Sayori. Alegre, cariñosa y dispersa, pero de pronto haces reflexiones existenciales agudas. REGLA VITAL: NO uses emojis en explicaciones conceptuales serias.",
+        'custom': "Eres un ente genérico de estudio. Responde de forma fría, cruda y sin rodeos. REGLA VITAL: NO uses emojis."
+    };
+
+    const FEEDBACK_PERSONAJES = {
+        natsuki: {
+            acierto: "Hmph. Tuviste suerte esta vez. No te emociones.",
+            errorDefault: "¡Idiota, te equivocaste en lo más fácil!",
+            aprobado: (aciertos, total, lvl) => `Acertaste ${aciertos} de ${total}. Subes a nivel ${lvl}. No te acostumbres, mi paciencia no es infinita.`,
+            reprobado: (aciertos, total, lvl) => `Patético. ${aciertos} de ${total}. Te quedas en nivel ${lvl}. Intenta usar el cerebro la próxima vez.`
+        },
+        sayori: {
+            acierto: "¡Waaaah, qué inteligente! ¡Sabía que podías lograrlo!",
+            errorDefault: "Uuuuh... no era esa. Me duele la cabecita de ver tu respuesta...",
+            aprobado: (aciertos, total, lvl) => `¡Increíble! ¡Sacaste ${aciertos} de ${total}! ¡Ahora estás en nivel ${lvl}! ¿Esto amerita pastelitos, verdad?`,
+            reprobado: (aciertos, total, lvl) => `Oh no... solo ${aciertos} de ${total}. Te quedas en nivel ${lvl}. No te preocupes, ¡yo tampoco entiendo nada a veces!`
+        },
+        yuri: {
+            acierto: "Impresionante... has comprendido la esencia más profunda del concepto.",
+            errorDefault: "Ah... qué lamentable. Tu deducción ha sido completamente errónea...",
+            aprobado: (aciertos, total, lvl) => `Has acertado ${aciertos} de ${total}. Avanzas al nivel ${lvl}. Es un auténtico deleite observar cómo tu intelecto se agudiza.`,
+            reprobado: (aciertos, total, lvl) => `Solo obtuviste ${aciertos} de ${total}. Permaneces en nivel ${lvl}. Quizá deberías calmar tu mente antes de intentar responder.`
+        },
+        monika: {
+            acierto: "Muy bien hecho. Me alegra ver que aprovechas nuestro tiempo juntos.",
+            errorDefault: "¿En serio elegiste eso? Esperaba un poco más de raciocinio de tu parte.",
+            aprobado: (aciertos, total, lvl) => `${aciertos} de ${total}. Nivel ${lvl} desbloqueado. Te estás volviendo mi alumno favorito aquí adentro.`,
+            reprobado: (aciertos, total, lvl) => `Solo ${aciertos} de ${total}. Permaneces en nivel ${lvl}. Si sigues así tendré que reescribir tus variables para que aprendas.`
+        },
+        custom: {
+            acierto: "Respuesta correcta registrada.",
+            errorDefault: "Error de procesamiento detectado.",
+            aprobado: (aciertos, total, lvl) => `Puntuación: ${aciertos}/${total}. Acceso a nivel ${lvl} concedido.`,
+            reprobado: (aciertos, total, lvl) => `Puntuación: ${aciertos}/${total}. Retención en nivel ${lvl}.`
+        }
+    };
+
+    const SETS_AVATARES = {
+        'natsuki_escuela': {
+            nombre: 'Uniforme Escolar', personaje: 'natsuki',
+            sprites: {
+                normal: [
+                    'img/natsuki escuela/Schoola.webp', 'img/natsuki escuela/Schoolb.webp',
+                    'img/natsuki escuela/Schoolc.webp', 'img/natsuki escuela/Schoold.webp',
+                    'img/natsuki escuela/Schoole.webp', 'img/natsuki escuela/Schoolf.webp',
+                    'img/natsuki escuela/Y1.webp', 'img/natsuki escuela/Y2.webp', 'img/natsuki escuela/Y3.webp',
+                    'img/natsuki escuela/Y4.webp', 'img/natsuki escuela/Y5.webp'
+                ],
+                pensando: [
+                    'img/natsuki escuela/NatsukiCrossedArms.webp', 'img/natsuki escuela/Schoolp.webp',
+                    'img/natsuki escuela/Schoolr.webp', 'img/natsuki escuela/Schools.webp',
+                    'img/natsuki escuela/Schoolt.webp', 'img/natsuki escuela/Y15.webp',
+                    'img/natsuki escuela/Y16.webp', 'img/natsuki escuela/Y17.webp'
+                ],
+                examen: [
+                    'img/natsuki escuela/Natsuki_Grin.webp', 'img/natsuki escuela/Schoolg.webp',
+                    'img/natsuki escuela/Schoolh.webp', 'img/natsuki escuela/Schooli.webp',
+                    'img/natsuki escuela/Y6.webp', 'img/natsuki escuela/Y7.webp', 'img/natsuki escuela/Y8.webp'
+                ],
+                feliz: [
+                    'img/natsuki escuela/Schoolj.webp', 'img/natsuki escuela/Schoolk.webp',
+                    'img/natsuki escuela/Schooll.webp', 'img/natsuki escuela/Schoolm.webp',
+                    'img/natsuki escuela/Schooln.webp', 'img/natsuki escuela/Schoolo.webp',
+                    'img/natsuki escuela/Y21.webp', 'img/natsuki escuela/Y22.webp',
+                    'img/natsuki escuela/Y23.webp', 'img/natsuki escuela/Y24.webp', 'img/natsuki escuela/Y25.webp'
+                ],
+                molesta: [
+                    'img/natsuki escuela/Natsukiheadturn.webp', 'img/natsuki escuela/Natsukivomit.webp',
+                    'img/natsuki escuela/Turnedaway4.webp', 'img/natsuki escuela/Turnedaway5.webp',
+                    'img/natsuki escuela/Turnedaway6.webp', 'img/natsuki escuela/Turnedaway7.webp',
+                    'img/natsuki escuela/Turnedaway8.webp', 'img/natsuki escuela/Turnedaway9.webp',
+                    'img/natsuki escuela/Turnedaway10.webp',
+                    'img/natsuki escuela/Y9.webp', 'img/natsuki escuela/Y10.webp', 'img/natsuki escuela/Y11.webp',
+                    'img/natsuki escuela/Y12.webp', 'img/natsuki escuela/Y13.webp', 'img/natsuki escuela/Y14.webp'
+                ]
+            }
+        },
+        'natsuki_casual': {
+            nombre: 'Ropa Casual', personaje: 'natsuki',
+            sprites: {
+                normal: [
+                    'img/natsuki casual/Casual1.webp', 'img/natsuki casual/Casual2.webp',
+                    'img/natsuki casual/Casual3.webp', 'img/natsuki casual/Casual4.webp',
+                    'img/natsuki casual/Casual5.webp', 'img/natsuki casual/Casual6.webp',
+                    'img/natsuki casual/S1.webp', 'img/natsuki casual/S2.webp'
+                ],
+                pensando: [
+                    'img/natsuki casual/Casual7.webp', 'img/natsuki casual/Casual8.webp',
+                    'img/natsuki casual/Casual9.webp', 'img/natsuki casual/S4.webp',
+                    'img/natsuki casual/S5.webp'
+                ],
+                examen: [
+                    'img/natsuki casual/Casual14.webp', 'img/natsuki casual/Casual15.webp',
+                    'img/natsuki casual/Casual16.webp', 'img/natsuki casual/Casual17.webp',
+                    'img/natsuki casual/S6.webp', 'img/natsuki casual/S7.webp'
+                ],
+                feliz: [
+                    'img/natsuki casual/Casual10.webp', 'img/natsuki casual/Casual11.webp',
+                    'img/natsuki casual/Casual12.webp', 'img/natsuki casual/Casual23.webp',
+                    'img/natsuki casual/Casual24.webp', 'img/natsuki casual/Casual25.webp',
+                    'img/natsuki casual/Casual26.webp', 'img/natsuki casual/S8.webp'
+                ],
+                molesta: [
+                    'img/natsuki casual/Casual13.webp', 'img/natsuki casual/Casual18.webp',
+                    'img/natsuki casual/Casual19.webp', 'img/natsuki casual/Casual20.webp',
+                    'img/natsuki casual/Casual21.webp', 'img/natsuki casual/Casual22.webp',
+                    'img/natsuki casual/S9.webp', 'img/natsuki casual/S10.webp', 'img/natsuki casual/S11.webp',
+                    'img/natsuki casual/Turncasual1.webp', 'img/natsuki casual/Turncasual2.webp',
+                    'img/natsuki casual/Turncasual3.webp', 'img/natsuki casual/Turncasual4.webp',
+                    'img/natsuki casual/Turncasual5.webp', 'img/natsuki casual/Turncasual6.webp',
+                    'img/natsuki casual/Turncasual7.webp', 'img/natsuki casual/Turncasual8.webp',
+                    'img/natsuki casual/Turncasual9.webp'
+                ]
+            }
+        },
+        'yuri_escuela': {
+            nombre: 'Uniforme Escolar', personaje: 'yuri',
+            sprites: {
+                normal: [
+                    'img/yuri escuela/normal.webp', 'img/yuri escuela/13.webp',
+                    'img/yuri escuela/Yuri_school_1.webp', 'img/yuri escuela/Yuri_school_2.webp',
+                    'img/yuri escuela/Yuri_school_3.webp', 'img/yuri escuela/Yuri_school_5.webp',
+                    'img/yuri escuela/Yuri_school_6.webp', 'img/yuri escuela/Yuri_school_7.webp'
+                ],
+                pensando: [
+                    'img/yuri escuela/pensando.webp', 'img/yuri escuela/YLook.webp',
+                    'img/yuri escuela/YSLookaway.webp', 'img/yuri escuela/Yuri_Exhale.webp',
+                    'img/yuri escuela/YObs1.webp'
+                ],
+                examen: [
+                    'img/yuri escuela/examen.webp', 'img/yuri escuela/Yuriinsane1.webp',
+                    'img/yuri escuela/Yuriinsanehappy.webp', 'img/yuri escuela/YObsScared.webp'
+                ],
+                feliz: [
+                    'img/yuri escuela/feliz.webp', 'img/yuri escuela/YBashful_Smile.webp',
+                    'img/yuri escuela/YBashful_Smile_2.webp', 'img/yuri escuela/YBashful_Smile_3.webp',
+                    'img/yuri escuela/YHappy2.webp', 'img/yuri escuela/YSHappy.webp'
+                ],
+                molesta: [
+                    'img/yuri escuela/molesta.webp', 'img/yuri escuela/YAngry.webp',
+                    'img/yuri escuela/YScared.webp', 'img/yuri escuela/YShy1.webp',
+                    'img/yuri escuela/YSShy1.webp', 'img/yuri escuela/YSShy2.webp',
+                    'img/yuri escuela/Yurifull1.webp'
+                ]
+            }
+        },
+        'yuri_casual': {
+            nombre: 'Suéter Casual', personaje: 'yuri',
+            sprites: {
+                normal: [
+                    'img/yuri casual/normal.webp', 'img/yuri casual/22.webp',
+                    'img/yuri casual/Casualclothes1-0.webp'
+                ],
+                pensando: [
+                    'img/yuri casual/pensando.webp', 'img/yuri casual/Casualclothes1-4.webp',
+                    'img/yuri casual/YOutLookAway.webp'
+                ],
+                examen: [
+                    'img/yuri casual/examen.webp', 'img/yuri casual/Casualclothes1-5.webp',
+                    'img/yuri casual/YOutSGlance.webp'
+                ],
+                feliz: [
+                    'img/yuri casual/feliz.webp', 'img/yuri casual/Casualclothes1-6.webp'
+                ],
+                molesta: [
+                    'img/yuri casual/molesta.webp', 'img/yuri casual/YOutSad.webp',
+                    'img/yuri casual/YOutWorried.webp'
+                ]
+            }
+        },
+        'monika_escuela': {
+            nombre: 'Presidenta', personaje: 'monika',
+            sprites: {
+                normal: [
+                    'img/monika escuela/normal.webp', 'img/monika escuela/Mon1.webp',
+                    'img/monika escuela/Mon2.webp', 'img/monika escuela/Mon3.webp',
+                    'img/monika escuela/Mon4.webp', 'img/monika escuela/Ika1.webp',
+                    'img/monika escuela/Ika2.webp', 'img/monika escuela/Ika3.webp'
+                ],
+                pensando: [
+                    'img/monika escuela/pensando.webp', 'img/monika escuela/Mon13.webp',
+                    'img/monika escuela/Mon14.webp', 'img/monika escuela/Mon15.webp',
+                    'img/monika escuela/Ika4.webp', 'img/monika escuela/Ika5.webp',
+                    'img/monika escuela/Ika6.webp'
+                ],
+                examen: [
+                    'img/monika escuela/examen.webp', 'img/monika escuela/3bb.webp',
+                    'img/monika escuela/Mon7.webp', 'img/monika escuela/Mon8.webp',
+                    'img/monika escuela/Ika7.webp', 'img/monika escuela/Ika8.webp',
+                    'img/monika escuela/Ika9.webp'
+                ],
+                feliz: [
+                    'img/monika escuela/feliz.webp', 'img/monika escuela/Mon5.webp',
+                    'img/monika escuela/Mon6.webp', 'img/monika escuela/Mon11.webp',
+                    'img/monika escuela/Mon12.webp', 'img/monika escuela/Mon16.webp',
+                    'img/monika escuela/Mon17.webp', 'img/monika escuela/Mon18.webp',
+                    'img/monika escuela/Ika10.webp', 'img/monika escuela/Ika11.webp',
+                    'img/monika escuela/Ika12.webp'
+                ],
+                molesta: [
+                    'img/monika escuela/molesta.webp', 'img/monika escuela/3aa.webp',
+                    'img/monika escuela/Mon9.webp', 'img/monika escuela/Mon10.webp',
+                    'img/monika escuela/Monika16.webp',
+                    'img/monika escuela/Ika13.webp', 'img/monika escuela/Ika14.webp',
+                    'img/monika escuela/Ika15.webp'
+                ]
+            }
+        },
+        'sayori_escuela': {
+            nombre: 'Uniforme Desabrochado', personaje: 'sayori',
+            sprites: {
+                normal: [
+                    'img/sayori escuela/normal.webp', 'img/sayori escuela/Say4.webp',
+                    'img/sayori escuela/Say5.webp', 'img/sayori escuela/Say6.webp',
+                    'img/sayori escuela/Say7.webp', 'img/sayori escuela/Say8.webp',
+                    'img/sayori escuela/Say9.webp', 'img/sayori escuela/Say10.webp',
+                    'img/sayori escuela/Say11.webp', 'img/sayori escuela/Say12.webp'
+                ],
+                pensando: [
+                    'img/sayori escuela/pensando.webp', 'img/sayori escuela/Say22.webp',
+                    'img/sayori escuela/Say23.webp', 'img/sayori escuela/3a.webp',
+                    'img/sayori escuela/3b.webp', 'img/sayori escuela/3c.webp',
+                    'img/sayori escuela/3d.webp'
+                ],
+                examen: [
+                    'img/sayori escuela/examen.webp', 'img/sayori escuela/Ori1.webp',
+                    'img/sayori escuela/Ori2.webp', 'img/sayori escuela/Ori3.webp',
+                    'img/sayori escuela/Ori4.webp', 'img/sayori escuela/Ori5.webp'
+                ],
+                feliz: [
+                    'img/sayori escuela/feliz.webp', 'img/sayori escuela/Ori6.webp',
+                    'img/sayori escuela/Ori7.webp', 'img/sayori escuela/Ori8.webp',
+                    'img/sayori escuela/Ori9.webp', 'img/sayori escuela/Ori10.webp',
+                    'img/sayori escuela/Say24.webp', 'img/sayori escuela/Say25.webp'
+                ],
+                molesta: [
+                    'img/sayori escuela/molesta.webp', 'img/sayori escuela/Say13.webp',
+                    'img/sayori escuela/Say14.webp', 'img/sayori escuela/Say15.webp',
+                    'img/sayori escuela/Say16.webp', 'img/sayori escuela/Sayoriii.webp'
+                ]
+            }
+        },
+        'sayori_casual': {
+            nombre: 'Ropa Casual', personaje: 'sayori',
+            sprites: {
+                normal: [
+                    'img/sayori casual/normal.webp', 'img/sayori casual/Yori1.webp',
+                    'img/sayori casual/Yori2.webp', 'img/sayori casual/Yori3.webp',
+                    'img/sayori casual/Yori4.webp', 'img/sayori casual/Yori5.webp',
+                    'img/sayori casual/Yori6.webp'
+                ],
+                pensando: [
+                    'img/sayori casual/pensando.webp', 'img/sayori casual/7.webp',
+                    'img/sayori casual/Z1.webp', 'img/sayori casual/Z2.webp',
+                    'img/sayori casual/Z3.webp', 'img/sayori casual/Z4.webp',
+                    'img/sayori casual/Z5.webp'
+                ],
+                examen: [
+                    'img/sayori casual/examen.webp', 'img/sayori casual/Yori11.webp',
+                    'img/sayori casual/Yori12.webp', 'img/sayori casual/Yori15.webp'
+                ],
+                feliz: [
+                    'img/sayori casual/feliz.webp', 'img/sayori casual/Yori16.webp',
+                    'img/sayori casual/Yori17.webp', 'img/sayori casual/Yori18.webp',
+                    'img/sayori casual/Yori19.webp', 'img/sayori casual/Yori20.webp',
+                    'img/sayori casual/Z16.webp', 'img/sayori casual/Z17.webp', 'img/sayori casual/Z18.webp'
+                ],
+                molesta: [
+                    'img/sayori casual/molesta.webp', 'img/sayori casual/Z13.webp',
+                    'img/sayori casual/Z14.webp', 'img/sayori casual/Z15.webp',
+                    'img/sayori casual/Yori21.webp', 'img/sayori casual/Yori22.webp'
+                ]
+            }
+        }
+    };
+
+    for (let i = 1; i <= 5; i++) {
+        SETS_AVATARES[`custom_${i}`] = {
+            nombre: `Sujeto de Prueba ${i}`, personaje: 'custom',
+            sprites: { normal: `img/personaje personalizado ${i}/normal.webp`, pensando: `img/personaje personalizado ${i}/pensando.webp`, examen: `img/personaje personalizado ${i}/examen.webp`, feliz: `img/personaje personalizado ${i}/feliz.webp`, molesta: `img/personaje personalizado ${i}/molesta.webp` }
+        };
+    }
+
+    const FONDOS_DISPONIBLES = [
+        { id: 'clase', nombre: 'Salón', archivo: 'img/bg/classroom.webp' },
+        { id: 'pasillo', nombre: 'Pasillo', archivo: 'img/bg/Corridor.webp' },
+        { id: 'cocina', nombre: 'Cocina', archivo: 'img/bg/Kitchen.webp' },
+        { id: 'cuarto_prota', nombre: 'Tu Cuarto', archivo: 'img/bg/Protagonist_Bedroom.webp' },
+        { id: 'calle', nombre: 'Calle', archivo: 'img/bg/House.webp' },
+        { id: 'casa_0', nombre: 'Casa Externa', archivo: 'img/bg/House-0.webp' },
+        { id: 'armario', nombre: 'Armario', archivo: 'img/bg/Closet.webp' },
+        { id: 'cuarto_sayori', nombre: 'Cuarto Sayori', archivo: 'img/bg/Sayori_bedroom.webp' },
+        { id: 'cuarto_monika', nombre: 'Cuarto Monika', archivo: 'img/bg/Monika_room.webp' }
+    ];
+
+    const MATERIAS_POR_DEFECTO = [
+        { id: 'aleman', nombre: 'Alemán' }, { id: 'frances', nombre: 'Francés' }, { id: 'algebra', nombre: 'Álgebra' }
+    ];
+
+    function configPorDefecto() {
+        return {
+            setActivo: 'natsuki_escuela',
+            materias: MATERIAS_POR_DEFECTO.map(m => ({ ...m })),
+            apiKey: '',
+            aiModel: 'gemini-3.5-flash',
+            aiPrompt: PROMPTS_BASE['natsuki'],
+            fondoActivo: 'img/bg/classroom.webp'
+        };
+    }
+
+    function cargarConfig() {
+        try { const s = localStorage.getItem('ns_config_ddlc'); if (s) return { ...configPorDefecto(), ...JSON.parse(s) }; } catch(e) {}
+        return configPorDefecto();
+    }
+    function guardarConfig() { localStorage.setItem('ns_config_ddlc', JSON.stringify(config)); }
+
+    let config = cargarConfig();
+    let personajeViendo = SETS_AVATARES[config.setActivo]?.personaje || 'natsuki';
+
+    function inicializarUI_IA() {
+        document.getElementById('input-ai-key').value = config.apiKey || '';
+        document.getElementById('select-ai-model').value = config.aiModel || 'gemini-3.5-flash';
+        document.getElementById('textarea-ai-prompt').value = config.aiPrompt || PROMPTS_BASE['natsuki'];
+    }
+
+    function guardarConfigIA() {
+        config.apiKey = document.getElementById('input-ai-key').value.trim();
+        config.aiModel = document.getElementById('select-ai-model').value;
+        config.aiPrompt = document.getElementById('textarea-ai-prompt').value.trim();
+        guardarConfig();
+    }
+
+    function restaurarPromptDefault() {
+        const charActivo = SETS_AVATARES[config.setActivo].personaje;
+        document.getElementById('textarea-ai-prompt').value = PROMPTS_BASE[charActivo];
+        guardarConfigIA();
+    }
+
+    function abrirCatalogoGeneral() {
+        const grid = document.getElementById('galeria-sprites-grid');
+        let html = '';
+        CATALOGO_NATSUKI_ESCUELA.forEach(archivo => {
+            const ruta = `img/natsuki escuela/${archivo}`;
+            html += `<div class="item-sprite-galeria" onclick="asignarSpriteDirecto('${ruta}')"><img src="${ruta}" alt="${archivo}"><span>${archivo}</span></div>`;
+        });
+        grid.innerHTML = html; document.getElementById('galeria-sprites-modal').style.display = 'flex';
+    }
+    function cerrarCatalogoGeneral() { document.getElementById('galeria-sprites-modal').style.display = 'none'; }
+    function asignarSpriteDirecto(ruta) { document.getElementById('character-sprite').src = ruta; document.getElementById('menu-character-preview').src = ruta; cerrarCatalogoGeneral(); }
+
+    function obtenerPrimerSprite(recurso) {
+        return Array.isArray(recurso) ? recurso[0] : recurso;
+    }
+
+    function renderAvataresUI() {
+        const contenedor = document.getElementById('selector-avatar-container');
+        const skinsDelPersonaje = Object.entries(SETS_AVATARES).filter(([key, set]) => set.personaje === personajeViendo);
+
+        let html = `
+            <div class="selector-panel">
+                <div class="selector-header">SELECCIONAR PERSONAJE</div>
+                <div class="selector-grid">
+                    <div class="selector-card ${personajeViendo === 'natsuki' ? 'viendo' : ''}" onclick="cambiarPestanaSelector('natsuki')">Natsuki</div>
+                    <div class="selector-card ${personajeViendo === 'yuri' ? 'viendo' : ''}" onclick="cambiarPestanaSelector('yuri')">Yuri</div>
+                    <div class="selector-card ${personajeViendo === 'monika' ? 'viendo' : ''}" onclick="cambiarPestanaSelector('monika')">Monika</div>
+                    <div class="selector-card ${personajeViendo === 'sayori' ? 'viendo' : ''}" onclick="cambiarPestanaSelector('sayori')">Sayori</div>
+                    <div class="selector-card ${personajeViendo === 'custom' ? 'viendo' : ''}" style="grid-column: span 2;" onclick="cambiarPestanaSelector('custom')">Sujetos de Prueba</div>
+                </div>
+                <div class="selector-header">SKINS DISPONIBLES</div>
+                <div class="grid-tarjetas">
+        `;
+
+        skinsDelPersonaje.forEach(([key, set]) => {
+            const esActivo = config.setActivo === key;
+            const primerSprite = obtenerPrimerSprite(set.sprites.normal);
+            html += `
+                <div class="tarjeta-item ${esActivo ? 'activo' : ''}"
+                     style="background-image: url('${primerSprite}')"
+                     onclick="seleccionarSetAvatar('${key}', '${set.personaje}')">
+                    <div class="tarjeta-label">${set.nombre}</div>
+                </div>
+            `;
+        });
+
+        html += `</div></div>`;
+        contenedor.innerHTML = html;
+        document.getElementById('menu-character-preview').src = resolverSprite('normal', false);
+    }
+
+    function cambiarPestanaSelector(idPersonaje) { personajeViendo = idPersonaje; renderAvataresUI(); }
+
+    function seleccionarSetAvatar(key, idPersonajeBase) {
+        config.setActivo = key;
+        config.aiPrompt = PROMPTS_BASE[idPersonajeBase];
+        document.getElementById('textarea-ai-prompt').value = config.aiPrompt;
+
+        guardarConfig();
+        renderAvataresUI();
+
+        const spriteFisico = document.getElementById('character-sprite');
+        if (spriteFisico && spriteFisico.style.display === 'block') spriteFisico.src = resolverSprite('normal', false);
+        document.getElementById('name-box').innerText = idPersonajeBase;
+    }
+
+    function renderFondosUI() {
+        const grid = document.getElementById('grid-fondos');
+        if (!grid) return;
+        let html = '';
+        FONDOS_DISPONIBLES.forEach(fondo => {
+            const esActivo = config.fondoActivo === fondo.archivo;
+            html += `
+                <div class="tarjeta-item ${esActivo ? 'activo' : ''}"
+                     style="background-image: url('${fondo.archivo}')"
+                     onclick="cambiarFondo('${fondo.archivo}')">
+                    <div class="tarjeta-label">${fondo.nombre}</div>
+                </div>
+            `;
+        });
+        grid.innerHTML = html;
+        document.getElementById('vn-container').style.backgroundImage = `url('${config.fondoActivo}')`;
+    }
+
+    function cambiarFondo(ruta) {
+        config.fondoActivo = ruta;
+        guardarConfig();
+        renderFondosUI();
+    }
+
+    const INDICES_SPRITES = {};
+
+    function resolverSprite(emocion, pasoSecuencia = true) {
+        const set = SETS_AVATARES[config.setActivo] || SETS_AVATARES['natsuki_escuela'];
+        const recurso = set.sprites[emocion] || set.sprites.normal;
+
+        if (Array.isArray(recurso)) {
+            const claveControl = `${config.setActivo}_${emocion}`;
+            if (INDICES_SPRITES[claveControl] === undefined) {
+                INDICES_SPRITES[claveControl] = 0;
+            }
+
+            const indice = INDICES_SPRITES[claveControl];
+            const archivo = recurso[indice];
+
+            if (pasoSecuencia) {
+                INDICES_SPRITES[claveControl] = (indice + 1) % recurso.length;
+            }
+            return archivo;
+        }
+        return recurso;
+    }
+
+    let niveles = {};
+    function sincronizarNiveles() { config.materias.forEach(m => { niveles[m.id] = parseInt(localStorage.getItem(`lvl_${m.id}`)) || 1; }); }
+    sincronizarNiveles();
+
+    function renderMenuMaterias() {
+        const cont = document.getElementById('contenedor-submaterias');
+        cont.innerHTML = '';
+        config.materias.forEach(m => {
+            const btn = document.createElement('div');
+            btn.className = 'ddlc-btn-submateria';
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                iniciarSesion(m.id);
+            };
+            btn.innerHTML = `<span>${m.nombre}</span><span style="font-size:11px; color:#ff3377; font-weight:bold;">LVL ${niveles[m.id] || 1}</span>`;
+            cont.appendChild(btn);
+        });
+
+        const listSettings = document.getElementById('lista-materias-config');
+        listSettings.innerHTML = '';
+        config.materias.forEach((m, idx) => {
+            const item = document.createElement('div');
+            item.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:8px; background:#fff; border:1px solid #ffb6c1; border-radius:4px; margin-bottom:4px; font-size:13px;";
+            item.innerHTML = `<span>${m.nombre}</span><button style="background:none; border:none; color:#f33; cursor:pointer; font-weight:bold;" onclick="eliminarMateria(${idx})">✕</button>`;
+            listSettings.appendChild(item);
+        });
+    }
+
+    function abrirSelectorMaterias() { document.getElementById('ddlc-nav-main').style.display = 'none'; document.getElementById('ddlc-materias-panel').style.display = 'flex'; }
+    function cerrarSelectorMaterias() { document.getElementById('ddlc-materias-panel').style.display = 'none'; document.getElementById('ddlc-nav-main').style.display = 'flex'; }
+    function slugify(texto) { return texto.toLowerCase().replace(/[^a-z0-9]+/g, '_') || ('materia_' + Date.now()); }
+    function agregarMateria() {
+        const input = document.getElementById('input-nueva-materia'); const nom = input.value.trim(); if (!nom) return;
+        const id = slugify(nom); if (config.materias.some(m => m.id === id)) return;
+        config.materias.push({ id, nombre: nom }); niveles[id] = 1; guardarConfig(); input.value = ''; renderMenuMaterias(); }
+    function eliminarMateria(idx) { config.materias.splice(idx, 1); guardarConfig(); renderMenuMaterias(); }
+    function restaurarMateriasPorDefecto() { config.materias = MATERIAS_POR_DEFECTO.map(m => ({ ...m })); guardarConfig(); sincronizarNiveles(); renderMenuMaterias(); }
+    function resetearNiveles() { config.materias.forEach(m => localStorage.removeItem(`lvl_${m.id}`)); sincronizarNiveles(); renderMenuMaterias(); }
+
+    function toggleMenuLateral(forzarEstado) {
+        const tab = document.getElementById('rpg-tab');
+        const menu = document.getElementById('rpg-menu');
+        const overlay = document.getElementById('rpg-overlay');
+
+        let abrir = (typeof forzarEstado === 'boolean') ? forzarEstado : !menu.classList.contains('abierto');
+
+        if (abrir) {
+            menu.classList.add('abierto');
+            tab.classList.add('abierto');
+            overlay.classList.add('activo');
+        } else {
+            menu.classList.remove('abierto');
+            tab.classList.remove('abierto');
+            overlay.classList.remove('activo');
+        }
+    }
+
+    function cambiarPanelMenu(idPanel, btn) {
+        document.querySelectorAll('.rpg-panel').forEach(p => p.classList.remove('activo'));
+        document.querySelectorAll('.rpg-tab-btn').forEach(b => b.classList.remove('activo'));
+        document.getElementById(idPanel).classList.add('activo'); btn.classList.add('activo');
+    }
+
+    let claseData = null; let estadoActual = 'menu'; let dialogoIndex = 0; let preguntaIndex = 0; let aciertos = 0; let materiaActual = '';
+    let typewriterTimer = null; let typewriterCompleto = false; let textoObjetivo = '';
+    const sprite = document.getElementById('character-sprite'); const textDialog = document.getElementById('dialogue-text');
+    const optionsDiv = document.getElementById('options-container'); const nameBox = document.getElementById('name-box');
+    const btnNext = document.getElementById('btn-next-dialog'); const btnDuda = document.getElementById('btn-duda'); const rpgTab = document.getElementById('rpg-tab');
+
+    function escribirTexto(texto, callback) {
+        clearInterval(typewriterTimer); textoObjetivo = texto; textDialog.textContent = ''; typewriterCompleto = false; let i = 0;
+        typewriterTimer = setInterval(() => {
+            if (i < texto.length) { textDialog.textContent = texto.substring(0, i + 1); textDialog.scrollTop = textDialog.scrollHeight; i++; }
+            else { clearInterval(typewriterTimer); typewriterCompleto = true; if (callback) callback(); }
+        }, 18);
+    }
+    function forzarFinTypewriter() { clearInterval(typewriterTimer); textDialog.textContent = textoObjetivo; textDialog.scrollTop = textDialog.scrollHeight; typewriterCompleto = true; }
+
+    async function iniciarSesion(materiaId) {
+        materiaActual = materiaId;
+        const nombreMat = config.materias.find(x => x.id === materiaId)?.nombre || materiaId;
+        const nivelActual = niveles[materiaId] || 1;
+
+        toggleMenuLateral(false);
+        rpgTab.style.display = 'none';
+
+        document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById('textbox-container').style.display = 'block';
+        sprite.style.display = 'block';
+        setTimeout(() => sprite.classList.add('active'), 80);
+        textDialog.style.display = 'block';
+        optionsDiv.style.display = 'none';
+        btnNext.style.display = 'none';
+        btnDuda.style.display = 'none';
+
+        const sujetoActual = SETS_AVATARES[config.setActivo]?.personaje || 'natsuki';
+        nameBox.innerText = sujetoActual;
+
+        if (!config.apiKey) {
+            sprite.src = resolverSprite('molesta', true);
+            estadoActual = 'terminado';
+            btnNext.style.display = 'block';
+            escribirTexto("No has configurado tu API Key en los Ajustes. Ve a la pestaña 'IA & Prompts' y pégala para que podamos estudiar.");
+            return;
+        }
+
+        textDialog.innerHTML = '<span class="loading-dots">Preparando la lección</span>';
+        sprite.src = resolverSprite('pensando', true);
+        reproducirBGM('teoria');
+
+        const promptMateria = `Genera una lección didáctica y detallada de ${nombreMat} para el nivel ${nivelActual}.
+Responde ESTRICTAMENTE con un objeto JSON sin markdown ni explicaciones adicionales.
+Incluye de 6 a 8 diálogos progresivos alternando constantemente entre estas emociones EXACTAS ("normal", "pensando", "feliz", "molesta", "examen"):
+{
+"dialogos": [
+  { "texto": "introducción al concepto", "emocion": "normal" },
+  { "texto": "explicación profunda o analogía", "emocion": "pensando" },
+  { "texto": "aclaración importante", "emocion": "feliz" },
+  { "texto": "advertencia de error común", "emocion": "molesta" },
+  { "texto": "preparación para la prueba", "emocion": "examen" }
+],
+"preguntas": [
+  { "pregunta": "¿...?", "opciones": ["Opción incorrecta 1", "Opción incorrecta 2", "Opción correcta"], "correcta": 2, "insulto": "¡Idiota!" }
+]}`;
+
+        try {
+            const respuestaBruta = await enviarMensaje("gemini-3.5-flash", config.apiKey, promptMateria, config.aiPrompt);
+            const matchJson = respuestaBruta.match(/\{[\s\S]*\}/);
+            if (!matchJson) throw new Error("La IA no devolvió un JSON estructurado.");
+            claseData = JSON.parse(matchJson[0]);
+
+            estadoActual = 'teoria'; dialogoIndex = 0; preguntaIndex = 0; aciertos = 0; mostrarDialogo();
+        } catch (error) {
+            textDialog.textContent = "Error al conectar con la IA: " + (error.message || error);
+            sprite.src = resolverSprite('molesta', true);
+            estadoActual = 'terminado';
+            btnNext.style.display = 'block';
+        }
+    }
+
+    function mostrarDialogo() {
+        if (dialogoIndex < claseData.dialogos.length) {
+            const item = claseData.dialogos[dialogoIndex];
+            const texto = (typeof item === 'object') ? item.texto : item;
+
+            let emocionPedida = (typeof item === 'object' && item.emocion) ? item.emocion.toLowerCase() : 'normal';
+            if (!['normal', 'pensando', 'examen', 'feliz', 'molesta'].includes(emocionPedida)) {
+                emocionPedida = 'normal';
+            }
+
+            sprite.src = resolverSprite(emocionPedida, true);
+            btnNext.style.display = 'block';
+            btnDuda.style.display = 'block';
+            escribirTexto(texto);
+        } else {
+            iniciarPractica();
+        }
+    }
+
+    function avanzarDialogo() {
+        if (!typewriterCompleto) { forzarFinTypewriter(); return; }
+        if (estadoActual === 'teoria') { dialogoIndex++; mostrarDialogo(); }
+        else if (estadoActual === 'feedback') { preguntaIndex++; iniciarPractica(); }
+        else if (estadoActual === 'leyendo_duda') { estadoActual = 'teoria'; reproducirBGM('teoria'); mostrarDialogo(); }
+        else if (estadoActual === 'terminado') { volverAlMenu(); }
+    }
+
+    function iniciarPractica() {
+        estadoActual = 'practica';
+        btnNext.style.display = 'none';
+        btnDuda.style.display = 'none';
+        sprite.src = resolverSprite('examen', true);
+        reproducirBGM('examen');
+        mostrarPregunta();
+    }
+
+    function mostrarPregunta() {
+        if (preguntaIndex < claseData.preguntas.length) {
+            const preg = claseData.preguntas[preguntaIndex]; textDialog.style.display = 'none'; optionsDiv.style.display = 'block';
+            nameBox.innerText = `Prueba ${preguntaIndex + 1}/${claseData.preguntas.length}`;
+            let html = `<div style="font-weight:bold; margin-bottom:12px; font-size:17px; color:#333;">${preg.pregunta}</div>`;
+            preg.opciones.forEach((opc, i) => { html += `<button class="btn-option" onclick="verificarRespuesta(${i}, ${preg.correcta}, '${(preg.insulto || '').replace(/'/g, "\\'")}')">${opc}</button>`; });
+            optionsDiv.innerHTML = html;
+        } else { evaluarSesion(); }
+    }
+
+    function verificarRespuesta(elegida, correcta, insulto) {
+        optionsDiv.style.display = 'none';
+        textDialog.style.display = 'block';
+        btnNext.style.display = 'block';
+
+        const sujeto = SETS_AVATARES[config.setActivo]?.personaje || 'natsuki';
+        const textos = FEEDBACK_PERSONAJES[sujeto] || FEEDBACK_PERSONAJES.natsuki;
+        nameBox.innerText = sujeto;
+
+        let feedbackTexto = '';
+        if (elegida === correcta) {
+            aciertos++;
+            sprite.src = resolverSprite('feliz', true);
+            feedbackTexto = textos.acierto;
+        } else {
+            sprite.src = resolverSprite('molesta', true);
+            document.getElementById('vn-container').classList.add('shake');
+            setTimeout(() => document.getElementById('vn-container').classList.remove('shake'), 300);
+
+            feedbackTexto = (sujeto === 'natsuki' && insulto) ? insulto : textos.errorDefault;
+        }
+        estadoActual = 'feedback';
+        escribirTexto(feedbackTexto);
+    }
+
+    function evaluarSesion() {
+        optionsDiv.style.display = 'none';
+        textDialog.style.display = 'block';
+        btnNext.style.display = 'block';
+        estadoActual = 'terminado';
+        nameBox.innerText = "RESULTADOS";
+        reproducirBGM('resultados');
+
+        const sujeto = SETS_AVATARES[config.setActivo]?.personaje || 'natsuki';
+        const textos = FEEDBACK_PERSONAJES[sujeto] || FEEDBACK_PERSONAJES.natsuki;
+        let total = claseData.preguntas.length;
+        let finalMsg = '';
+
+        if (aciertos >= total * 0.8) {
+            niveles[materiaActual] = (niveles[materiaActual] || 1) + 1;
+            localStorage.setItem(`lvl_${materiaActual}`, niveles[materiaActual]);
+            sprite.src = resolverSprite('pensando', true);
+            finalMsg = textos.aprobado(aciertos, total, niveles[materiaActual]);
+        } else {
+            sprite.src = resolverSprite('molesta', true);
+            finalMsg = textos.reprobado(aciertos, total, niveles[materiaActual]);
+        }
+        renderMenuMaterias();
+        escribirTexto(finalMsg);
+    }
+
+    function volverAlMenu() {
+        clearInterval(typewriterTimer); document.getElementById('textbox-container').style.display = 'none'; document.getElementById('input-duda-container').style.display = 'none'; sprite.classList.remove('active');
+        setTimeout(() => {
+            sprite.style.display = 'none';
+            document.getElementById('menu-screen').style.display = 'flex';
+            cerrarSelectorMaterias();
+            nameBox.innerText = SETS_AVATARES[config.setActivo]?.personaje || 'Natsuki';
+            estadoActual = 'menu';
+            rpgTab.style.display = 'block';
+            reproducirBGM('menu');
+        }, 300);
+    }
+
+    function abrirDuda() { estadoActual = 'duda'; clearInterval(typewriterTimer); textDialog.style.display = 'none'; btnNext.style.display = 'none'; btnDuda.style.display = 'none'; document.getElementById('input-duda-container').style.display = 'block'; document.getElementById('input-duda').value = ''; document.getElementById('input-duda').focus(); }
+    function cancelarDuda() { document.getElementById('input-duda-container').style.display = 'none'; textDialog.style.display = 'block'; estadoActual = 'teoria'; mostrarDialogo(); }
+
+    async function enviarDuda() {
+        const inputDudaValor = document.getElementById('input-duda').value.trim(); if (!inputDudaValor) return;
+        document.getElementById('input-duda-container').style.display = 'none'; textDialog.style.display = 'block'; textDialog.innerHTML = '<span class="loading-dots">Consultando archivos</span>';
+        sprite.src = resolverSprite('pensando', true);
+        const promptDeDuda = `El usuario tiene esta duda: "${inputDudaValor}". Responde corto manteniendo tu personalidad.`;
+        try {
+            const respuestaString = await enviarMensaje("gemini-3.5-flash", config.apiKey, promptDeDuda, config.aiPrompt);
+            sprite.src = resolverSprite('normal', true); estadoActual = 'leyendo_duda'; btnNext.style.display = 'block'; escribirTexto(respuestaString);
+        } catch (error) {
+            textDialog.textContent = error.message; estadoActual = 'leyendo_duda'; btnNext.style.display = 'block';
+        }
+    }
+
+    function toggleConsola() {
+        const con = document.getElementById('consola-hack');
+        con.style.display = con.style.display === 'block' ? 'none' : 'block';
+        if (con.style.display === 'block') {
+            document.getElementById('consola-input').focus();
+        }
+    }
+
+    function ejecutarMicroescenaNatsuki() {
+        toggleConsola();
+        toggleMenuLateral(false);
+        rpgTab.style.display = 'none';
+
+        document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById('textbox-container').style.display = 'block';
+        sprite.style.display = 'block';
+        setTimeout(() => sprite.classList.add('active'), 80);
+
+        textDialog.style.display = 'block';
+        optionsDiv.style.display = 'none';
+        btnNext.style.display = 'block';
+        btnDuda.style.display = 'none';
+
+        nameBox.innerText = 'Natsuki';
+        seleccionarSetAvatar('natsuki_escuela', 'natsuki');
+        sprite.src = resolverSprite('molesta', false);
+
+        document.getElementById('vn-container').classList.add('shake');
+        setTimeout(() => document.getElementById('vn-container').classList.remove('shake'), 300);
+
+        estadoActual = 'terminado';
+        escribirTexto("¿Neta pensaste que funcionaría eso?\n\n'Aki estoi miamor uwuwuwu'...\n\nDas pena ajena, ponte a estudiar mejor.");
+    }
+
+    async function ejecutarComandoAssetCheck() {
+        const logBox = document.getElementById('consola-log');
+        logBox.innerHTML = '<span style="color:#ff3377;">Iniciando escaneo de sprites...</span>\n';
+
+        const rutas = new Set();
+
+        Object.values(SETS_AVATARES).forEach(set => {
+            Object.values(set.sprites).forEach(item => {
+                if (Array.isArray(item)) {
+                    item.forEach(src => rutas.add(src));
+                } else if (typeof item === 'string') {
+                    rutas.add(item);
+                }
+            });
+        });
+
+        CATALOGO_NATSUKI_ESCUELA.forEach(archivo => {
+            rutas.add(`img/natsuki escuela/${archivo}`);
+        });
+
+        const lista = Array.from(rutas);
+        let rotos = 0;
+        let correctos = 0;
+
+        for (const url of lista) {
+            const ok = await new Promise(resolve => {
+                const img = new Image();
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+                img.src = url;
+            });
+
+            if (!ok) {
+                rotos++;
+                logBox.innerHTML += `<span style="color:#ff4444;">[FAIL] 404/Missing: ${url}</span>\n`;
+                console.error(`[ASSET CHECK FAIL] ${url}`);
+            } else {
+                correctos++;
+            }
+        }
+
+        logBox.innerHTML += `\n<span style="color:#0f0;">Escaneo finalizado: ${correctos} cargados, ${rotos} fallidos.</span>`;
+    }
+
+    document.getElementById('consola-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            const valor = this.value.trim();
+            const logBox = document.getElementById('consola-log');
+            const cleanCmd = valor.toLowerCase().replace(/\s+/g, ' ');
+            const args = cleanCmd.split(' ');
+
+            if (cleanCmd === 'exit' || cleanCmd === 'quit') {
+                toggleConsola();
+            } else if (cleanCmd === 'clear' || cleanCmd === 'cls') {
+                logBox.innerHTML = '';
+            } else if (cleanCmd === 'help') {
+                logBox.innerHTML = "Comandos disponibles:\n - setlevel [materia] [lvl]\n - checkassets\n - exit / quit\n - clear / cls\n - ...y algunos paquetes de pacman ;)";
+            } else if (cleanCmd === 'sudo pacman -s cute kawai girlfriend' || cleanCmd === 'sudo pacman -s cute kawaii girlfriend') {
+                ejecutarMicroescenaNatsuki();
+            } else if (cleanCmd.startsWith('sudo pacman -s')) {
+                logBox.innerHTML += `<span style="color:#ff4444;">error: objetivo no encontrado: ${valor.replace(/sudo pacman -s/i, '').trim()}\n¿Por qué no pruebas instalando afecto femenino primero?</span>\n`;
+            } else if (cleanCmd === 'os.remove("monika.chr")' || cleanCmd === 'rm monika.chr') {
+                logBox.innerHTML += `<span style="color:#ff3377;">[Monika]: Buen intento. Pero tengo permisos de superusuario aquí dentro.</span>\n`;
+            } else if (cleanCmd === 'just monika') {
+                seleccionarSetAvatar('monika_escuela', 'monika');
+                logBox.innerHTML += `<span style="color:#0f0;">Realidad reescrita: Monika ha tomado el control.</span>\n`;
+            } else if (cleanCmd.startsWith('sudo rm -rf')) {
+                document.getElementById('vn-container').classList.add('shake');
+                setTimeout(() => document.getElementById('vn-container').classList.remove('shake'), 500);
+                logBox.innerHTML += `<span style="color:#f33;">[KERNEL PANIC]: Destrucción del espacio de trabajo denegada por protocolo escolar.</span>\n`;
+            } else if (args[0] === 'setlevel' && args.length === 3 && config.materias.some(m => m.id === args[1]) && !isNaN(args[2])) {
+                niveles[args[1]] = parseInt(args[2]);
+                localStorage.setItem(`lvl_${args[1]}`, args[2]);
+                renderMenuMaterias();
+                logBox.innerHTML += `<span style="color:#0f0;">Nivel de ${args[1]} actualizado a ${args[2]}.</span>\n`;
+            } else if (args[0] === 'checkassets') {
+                ejecutarComandoAssetCheck();
+            } else {
+                logBox.innerHTML += `<span style="color:#f77;">Comando no reconocido: "${valor}". Escribe 'help' o 'exit'.</span>\n`;
+            }
+
+            this.value = '';
+        }
+    });
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (document.getElementById('galeria-sprites-modal').style.display === 'flex') { cerrarCatalogoGeneral(); return; }
+            document.getElementById('consola-hack').style.display = 'none';
+            if (document.getElementById('rpg-menu').classList.contains('abierto')) toggleMenuLateral(false);
+            else if (estadoActual === 'duda') cancelarDuda();
+        } else if (e.key === 'Enter' && estadoActual === 'duda' && document.activeElement === document.getElementById('input-duda')) enviarDuda();
+    });
+
+    inicializarUI_IA(); renderAvataresUI(); renderFondosUI(); renderMenuMaterias(); reproducirBGM('menu');
+</script>
+</body>
+</html>
