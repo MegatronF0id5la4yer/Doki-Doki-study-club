@@ -1,5 +1,6 @@
 # 🌸 Doki Doki Study Club! (Port Android, Windows, Linux & Web) 🧁✨
 
+SI NO ERES DESARROLADOR SOLO DESCARGA EL ZIP PARA WINDOWS, EL APK PARA ANDROID YE EL ARCHIVO TAR PARA LINUX QUE ESTAN EN EL LINK DE DRIVE ok
 [![Doki Doki Study Club tutorial](https://img.youtube.com/vi/jBb_K5g2S1E/hqdefault.jpg)](https://youtube.com/shorts/jBb_K5g2S1E)
 
 ¡Bienvenido al club de literatura más caótico y educativo del ciberespacio!  
