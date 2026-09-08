@@ -1,5 +1,4 @@
-Pinche bloque de código en la sección de Linux se quedó abierto con el triple backtick (```) mal ubicado, lo que provocó que todo el resto del texto se tragara el formato como si fuera código plano.
-Reemplaza todo el contenido de tu README.md con este archivo corregido:
+
 # 🌸 Doki Doki Study Club! (Port Android, Windows, Linux & Web) 🧁✨
 
 [![Doki Doki Study Club tutorial](https://img.youtube.com/vi/jBb_K5g2S1E/hqdefault.jpg)](https://youtube.com/shorts/jBb_K5g2S1E)
