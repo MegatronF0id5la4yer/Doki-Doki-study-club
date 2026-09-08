@@ -41,7 +41,7 @@ Para instalar el juego sin necesidad de compilar código:
 * Descarga el tarball `DokiDokiStudyClub-Linux.tar.gz`.
 * Extrae el contenido en tu terminal con:
 
-```bash
+bash
 tar -xvf DokiDokiStudyClub-Linux.tar.gz
 cd nwjs-v0.88.0-linux-x64
 chmod +x DokiDokiStudyClub
