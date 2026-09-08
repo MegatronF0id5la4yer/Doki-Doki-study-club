@@ -1,4 +1,6 @@
- 🌸 Doki Doki Study Club! (Port Android, Windows, Linux & Web) 🧁✨
+Pinche bloque de código en la sección de Linux se quedó abierto con el triple backtick (```) mal ubicado, lo que provocó que todo el resto del texto se tragara el formato como si fuera código plano.
+Reemplaza todo el contenido de tu README.md con este archivo corregido:
+# 🌸 Doki Doki Study Club! (Port Android, Windows, Linux & Web) 🧁✨
 
 [![Doki Doki Study Club tutorial](https://img.youtube.com/vi/jBb_K5g2S1E/hqdefault.jpg)](https://youtube.com/shorts/jBb_K5g2S1E)
 
@@ -47,15 +49,14 @@ chmod +x DokiDokiStudyClub
 ./DokiDokiStudyClub
 
 
-###🔑 Despertar a las Dokis (Configuración de la API)
+🔑 Despertar a las Dokis (Configuración de la API)
 El juego procesa las respuestas directamente en tu dispositivo sin servidores intermediarios. Para conectar la IA necesitas una clave de acceso gratuita de Google:
 Ingresa a Google AI Studio.
 Inicia sesión con tu cuenta de Google y pulsa el botón Get API key.
 Haz clic en Create API key y copia la cadena generada (compatible con el formato clásico AIzaSy... y el estándar AQ...).
 Abre la aplicación en tu celular, escritorio o navegador y ve a la pestaña lateral Ajustes > IA & Prompts.
 Pega tu clave en la casilla API Key Personal, selecciona o añade una materia y pulsa Nueva Lección.
----
-###💾 Gestión Offline y Respaldo de Materias (Exportar / Importar JSON)
+💾 Gestión Offline y Respaldo de Materias (Exportar / Importar JSON)
 Para que no pierdas tus lecciones personalizadas ni tu temario cuando no tengas conexión a internet, la interfaz incluye un sistema de respaldo directo:
 ⬇ Descargar Materias (JSON): Exporta un respaldo local en formato .json (materias_ddlc.json) con todas las materias predeterminadas y las agregadas manualmente.
 ⬆ Importar Materias (JSON): Carga un temario previamente guardado para restaurar tus cursos en cualquier dispositivo de forma instantánea.
@@ -87,7 +88,7 @@ Si ejecutas el port de Linux en un entorno virtualizado sin aceleración 3D nati
 
 🛠️ Para Desarrolladores y Modders (Compilación Local)
 Clonar el repositorio
-git clone [https://github.com/MegatronF0id5la4yer/Doki-Doki-study-club.git](https://github.com/MegatronF0id5la4yer/Doki-Doki-study-club.git)
+git clone https://github.com/MegatronF0id5la4yer/Doki-Doki-study-club.git
 
 
 Compilación para Android (APK)
