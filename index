@@ -120,7 +120,7 @@
 
         .ddlc-btn-badge { background: #ff3377; color: #fff; border-radius: 12px; padding: 2px 8px; font-size: 11px; }
 
-        #ddlc-materias-panel {
+        #ddlc-materias-panel, #ddlc-doki-panel, #ddlc-games-panel {
             display: none; flex-direction: column; gap: 8px;
             max-height: 280px; overflow-y: auto; padding-right: 4px;
         }
@@ -197,11 +197,11 @@
         }
         .game-btn:hover { background: #ff3377; transform: scale(1.05); }
 
-        #options-container { display: none; padding: 15px; height: 135px; overflow-y: auto; }
+        #options-container { display: none; padding: 10px; height: 135px; overflow-y: auto; }
         .btn-option {
-            display: block; width: 90%; margin: 6px auto; padding: 9px 15px;
+            display: block; width: 90%; margin: 4px auto; padding: 8px 12px;
             background: #fff; border: 2px solid #ff7aa2; border-radius: 8px;
-            color: #333; font-weight: bold; font-size: 16px; cursor: pointer; text-align: center;
+            color: #333; font-weight: bold; font-size: 15px; cursor: pointer; text-align: center;
         }
         .btn-option:hover { background: #ff7aa2; color: #fff; }
 
@@ -229,6 +229,32 @@
         #consola-hack { display: none; position: absolute; top: 0; left: 0; width: 100%; max-height: 80vh; overflow-y: auto; background: rgba(0,0,0,0.95); color: #0f0; padding: 10px; z-index: 1000; font-family: monospace; }
         #consola-input { background: transparent; border: none; color: #0f0; width: 80%; outline: none; font-family: monospace; }
         #consola-log { margin-top: 8px; font-size: 11px; white-space: pre-wrap; word-break: break-all; }
+
+        /* --- Easter eggs: explote / matrix --- */
+        .doki-explote {
+            position: fixed; width: 140px; z-index: 5000; pointer-events: none;
+            filter: drop-shadow(0 0 10px rgba(255,51,119,0.7));
+            animation: explote-vueltas 0.5s linear infinite, explote-vuela 2.6s ease-in-out infinite alternate;
+        }
+        .grito-explote {
+            position: fixed; z-index: 5001; color: #ff3377; font-weight: bold; font-family: monospace;
+            text-shadow: 0 0 6px #fff, 2px 2px 0 #000; pointer-events: none;
+            animation: grito-pop 1.4s ease-out forwards;
+        }
+        @keyframes explote-vueltas { from { rotate: 0deg; } to { rotate: 360deg; } }
+        @keyframes explote-vuela {
+            0%   { translate: 0 0; }
+            25%  { translate: 60vw 10vh; }
+            50%  { translate: -50vw 40vh; }
+            75%  { translate: 40vw -30vh; }
+            100% { translate: -30vw -10vh; }
+        }
+        @keyframes grito-pop {
+            0%   { opacity: 0; scale: 0.4; }
+            15%  { opacity: 1; scale: 1.3; }
+            100% { opacity: 0; scale: 1; translate: 0 -40px; }
+        }
+        #matrix-rain-canvas { position: fixed; inset: 0; z-index: 4000; pointer-events: none; display: none; }
 
         #rpg-tab {
             position: fixed; top: 50%; left: 0; transform: translateY(-50%);
@@ -333,9 +359,38 @@
             font-size: 10px; text-align: center; padding: 4px 0;
             font-weight: bold; text-transform: uppercase;
         }
+
+        #monika-popup {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85); z-index: 5000; justify-content: center; align-items: center; flex-direction: column;
+        }
+        .popup-box {
+            background: #fff; border: 4px solid #ff3377; border-radius: 12px; padding: 30px;
+            text-align: center; color: #222; box-shadow: 0 0 30px #ff3377; animation: trauma 0.2s infinite;
+        }
+
+        #minijuegos-modal {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 85%; max-width: 520px; background: #fff0f5; border: 4px solid #ff7aa2;
+            border-radius: 12px; z-index: 3000; padding: 20px; color: #333; text-align: center;
+        }
     </style>
 </head>
 <body>
+
+<div id="monika-popup">
+    <div class="popup-box">
+        <h1 style="font-size: 40px; color: #ff3377; margin-bottom: 10px;">JUST MONIKA</h1>
+        <p style="font-weight: bold;">No puedes borrarla. No puedes escapar.</p>
+        <button class="game-btn" style="margin-top: 20px;" onclick="cerrarPopUpMonika()">Aceptar mi destino</button>
+    </div>
+</div>
+
+<div id="minijuegos-modal">
+    <h2 id="minijuego-titulo" style="color: #ff3377; margin-bottom: 10px;">Minijuego</h2>
+    <div id="minijuego-contenido"></div>
+    <button class="game-btn" style="margin-top: 15px; background: #666;" onclick="cerrarMinijuego()">Cerrar</button>
+</div>
 
 <div id="rpg-overlay" onclick="toggleMenuLateral(false)"></div>
 <div id="rpg-tab" onclick="toggleMenuLateral()">AJUSTES</div>
@@ -390,6 +445,9 @@
             <div id="lista-materias-config"></div>
             <button class="game-btn" style="width: 100%; margin-top: 15px; background: #666;" onclick="restaurarMateriasPorDefecto()">Restaurar Default</button>
             <button class="game-btn" style="width: 100%; margin-top: 8px; background: #e33;" onclick="resetearNiveles()">Borrar Todo el Progreso</button>
+            <button class="game-btn" style="width: 100%; margin-top: 15px; background: #2a9d5c;" onclick="descargarMateriasJSON()">⬇ Descargar Materias (JSON)</button>
+            <button class="game-btn" style="width: 100%; margin-top: 8px; background: #3388cc;" onclick="document.getElementById('input-importar-materias').click()">⬆ Importar Materias (JSON)</button>
+            <input type="file" id="input-importar-materias" accept="application/json,.json" style="display:none;" onchange="importarMateriasDesdeArchivo(event)">
         </div>
 
         <div class="rpg-panel" id="panel-audio">
@@ -433,6 +491,14 @@
                     <span>Nueva Lección</span>
                     <span class="ddlc-btn-badge">▶</span>
                 </button>
+                <button class="ddlc-btn" onclick="abrirSelectorDoki()">
+                    <span>Dating Sim</span>
+                    <span class="ddlc-btn-badge">❤</span>
+                </button>
+                <button class="ddlc-btn" onclick="abrirSelectorJuegos()">
+                    <span>Minijuegos</span>
+                    <span class="ddlc-btn-badge">🎮</span>
+                </button>
                 <button class="ddlc-btn" id="btn-abrir-ajustes" onclick="toggleMenuLateral(true)">
                     <span>Ajustes & Avatares</span>
                     <span>⚙</span>
@@ -446,6 +512,22 @@
             <div id="ddlc-materias-panel">
                 <button class="ddlc-btn-back" onclick="cerrarSelectorMaterias()">◀ Volver al Menú</button>
                 <div id="contenedor-submaterias" style="display:flex; flex-direction:column; gap:6px;"></div>
+            </div>
+
+            <div id="ddlc-doki-panel">
+                <button class="ddlc-btn-back" onclick="cerrarSelectorMaterias()">◀ Volver al Menú</button>
+                <div class="ddlc-btn-submateria" onclick="iniciarHistoriaDoki('natsuki')"><span>Natsuki</span><span>❤</span></div>
+                <div class="ddlc-btn-submateria" onclick="iniciarHistoriaDoki('sayori')"><span>Sayori</span><span>❤</span></div>
+                <div class="ddlc-btn-submateria" onclick="iniciarHistoriaDoki('yuri')"><span>Yuri</span><span>❤</span></div>
+                <div class="ddlc-btn-submateria" onclick="iniciarHistoriaDoki('monika')"><span>Monika</span><span>❤</span></div>
+            </div>
+
+            <div id="ddlc-games-panel">
+                <button class="ddlc-btn-back" onclick="cerrarSelectorMaterias()">◀ Volver al Menú</button>
+                <div class="ddlc-btn-submateria" onclick="abrirJuegoEspecifico('natsuki')"><span>Tacos Clicker</span><span>🌮</span></div>
+                <div class="ddlc-btn-submateria" onclick="abrirJuegoEspecifico('sayori')"><span>Atrapa Panes</span><span>🍞</span></div>
+                <div class="ddlc-btn-submateria" onclick="abrirJuegoEspecifico('yuri')"><span>Corta el Té</span><span>☕</span></div>
+                <div class="ddlc-btn-submateria" onclick="abrirJuegoEspecifico('monika')"><span>Hackea el Script</span><span>💻</span></div>
             </div>
         </div>
         <img id="menu-character-preview" src="img/natsuki escuela/Schoola.webp" alt="Menu Preview">
@@ -466,7 +548,7 @@
         </div>
 
         <div class="dialogue-ctrls">
-            <button class="game-btn" id="btn-next-dialog" onclick="avanzarDialogo()">Siguiente ▶</button>
+            <button class="game-btn" id="btn-next-dialog">Siguiente ▶</button>
             <button class="game-btn" id="btn-duda" onclick="abrirDuda()">Tengo una duda</button>
         </div>
     </div>
@@ -493,6 +575,197 @@
         teoria: 'music/map_muzak.ogg',
         examen: 'music/1-06. Poem Panic!.flac',
         resultados: 'music/1-09. My Confession.flac'
+    };
+
+    const DATING_SIM_HISTORIAS = {
+        'natsuki': [
+            {
+                bg: 'img/bg/classroom.webp',
+                texto: "Wey... ¿por qué me estás mirando tanto? ¿Traes comida o qué pedo?",
+                opciones: [
+                    { texto: "Te traje un gansito del OXXO.", puntos: 3, resp: "¡Ah cabrón! Bueno, ya no me caes tan mal... dámelo antes de que venga Yuri a joder." },
+                    { texto: "Es que estás bien bonita.", puntos: -5, resp: "¡Qué asco, no digas idioteces! *Te mete un madrazaszo en las costillas*" },
+                    { texto: "¿No viste la bola de manga que dejaste tirada?", puntos: 1, resp: "¡E-Eh! ¡No es mío, es... investigación! No le digas a Monika o me colgará." }
+                ]
+            },
+            {
+                bg: 'img/bg/Closet.webp',
+                texto: "Oye... las repisas del armario están muy altas. Ayúdame a bajar el tomo 4 de Parfait Girls.",
+                opciones: [
+                    { texto: "Cargarla de la cintura para alcanzarlo.", puntos: 5, resp: "¡A-Agh! ¡Suéltame idiota! ...pero gracias, supongo. Apúrate." },
+                    { texto: "Usar una silla como persona normal.", puntos: 2, resp: "Obvio, genio. ¿Creías que iba a pedirte que me cargaras como en un anime aburrido?" },
+                    { texto: "Burlarte de su estatura.", puntos: -6, resp: "¡Te voy a romper el hocico cuando consiga un banquito de mi tamaño!" }
+                ]
+            },
+            {
+                bg: 'img/bg/Kitchen.webp',
+                texto: "Monika me pidió hornear panqués para el evento. ¿Te vas a quedar parado como menso o me vas a ayudar?",
+                opciones: [
+                    { texto: "Ponerle lunetas de chocolate decorativas.", puntos: 4, resp: "¡Eso! Mira, quedaron bien chidos. Sí le sabes a la repostería." },
+                    { texto: "Echarle sal en vez de azúcar por broma.", puntos: -10, resp: "¡Estercolero! ¡Arruinaste la mezcla! ¡Salte de mi cocina ahora mismo!" },
+                    { texto: "Pintarle un bigote con betún en la cara.", puntos: 3, resp: "¡Oye! Jaja, te vas a arrepentir... ¡toma betunazo!" }
+                ]
+            },
+            {
+                bg: 'img/bg/Club.webp',
+                texto: "Oye, estuve leyendo el poema que escribiste ayer... Está medio raro, ¿te inspiraste en mí o qué?",
+                opciones: [
+                    { texto: "Sí, usé palabras simples pero bonitas como tú.", puntos: 5, resp: "¡A-Ah! ¡No digas esas cosas tan abiertamente, tarado!" },
+                    { texto: "No, me inspiré en un perro callejero.", puntos: -4, resp: "Chinga tu madre pues, ¡ya no te voy a leer nada!" },
+                    { texto: "Lo escribí pensando en la pizza de ayer.", puntos: 1, resp: "Típico de ti. Aunque me dio hambre..." }
+                ]
+            },
+            {
+                bg: 'img/bg/House.webp',
+                texto: "Se acabó la junta. Voy de salida hacia mi casa... la zona está medio pesada a esta hora.",
+                opciones: [
+                    { texto: "Acompañarla caminando hasta su puerta.", puntos: 5, resp: "Bueno... para que no digas que soy malagradecida. Vamos pues." },
+                    { texto: "Pedirle que ella te acompañe a ti.", puntos: -2, resp: "¡Qué cobarde eres! ¿Quién va a cuidar a quién aquí?" },
+                    { texto: "Regalarle tu boleto del metro.", puntos: 2, resp: "A mi me sirve más el camión pero se aprecia el gesto." }
+                ]
+            }
+        ],
+        'sayori': [
+            {
+                bg: 'img/bg/Corridor.webp',
+                texto: "¡Holaaa! Se me hizo super tarde porque me quedé dormida viendo memes... ¿Me das la mitad de tu torta?",
+                opciones: [
+                    { texto: "Ten, agarra toda la torta entera.", puntos: 5, resp: "¡Waaaa! ¡Eres el mejor amigo del mundo entero! ¡Te quiero un mil!" },
+                    { texto: "Ponte a hacer la tarea mejor, hueva.", puntos: -3, resp: "Uuuuh... qué amargado eres... mi pancita está sonando feo..." },
+                    { texto: "Te la cambio por una galleta.", puntos: 2, resp: "¡Trato hecho! Aunque la galleta era de ayer jaja..." }
+                ]
+            },
+            {
+                bg: 'img/bg/classroom.webp',
+                texto: "Oye... ¿de verdad te gusta venir al club a estar conmigo o prefieres estar solo?",
+                opciones: [
+                    { texto: "Obvio sí, alegras todo el salón.", puntos: 4, resp: "¡Jeje, me haces dar vueltas en la cabeza cuando dices eso!" },
+                    { texto: "Vengo nomás por los créditos de la prepa.", puntos: -5, resp: "Chale... qué feo se sintió eso... me bajo el ánimo bien feo..." },
+                    { texto: "Vengo a ver si Natsuki trae pastel.", puntos: 0, resp: "Ayer no trajo nada, pero me prometió un panqué si me callaba." }
+                ]
+            },
+            {
+                bg: 'img/bg/Protagonist_Bedroom.webp',
+                texto: "¡Me colé a tu cuarto! Es que mi cuarto está súper desordenado y me dio flojera limpiarlo...",
+                opciones: [
+                    { texto: "Ayudarla a limpiar su cuarto juntos.", puntos: 5, resp: "¡Sí! Si me ayudas prometo no distraerme con los peluches." },
+                    { texto: "Correrla a patadas de tu casa.", puntos: -8, resp: "¡Ayyy! No seas gacho, afuera hay mucho viento..." },
+                    { texto: "Acomodarse a ver películas viejas.", puntos: 3, resp: "¡Pide pizza! Yo pongo los refrescos calentitos de la alacena." }
+                ]
+            },
+            {
+                bg: 'img/bg/Club.webp',
+                texto: "¡Mira! Intenté hacer una pajarita de papel pero quedó como un bollo aplastado...",
+                opciones: [
+                    { texto: "Enseñarle a hacer una pajarita paso a paso.", puntos: 4, resp: "¡Eeeh! ¡Ahora vuela! Eres súper hábil con los dedos." },
+                    { texto: "Reírte de su pajarita fea.", puntos: -2, resp: "¡Oye! Le eché muchas ganas..." },
+                    { texto: "Comerte el papiro.", puntos: 1, resp: "¡Nooo! ¡Eso no se come, loco!" }
+                ]
+            },
+            {
+                bg: 'img/bg/Sayori_bedroom.webp',
+                texto: "A veces... siento que hay nubes negrísimas en mi cabeza que no me dejan levantarme de la cama...",
+                opciones: [
+                    { texto: "Abrazarla fuerte y decirle que no está sola.", puntos: 6, resp: "Gracias... de verdad necesitaba escuchar eso hoy..." },
+                    { texto: "Decirle que le eche ganas y no sea floja.", puntos: -10, resp: "No es tan fácil... no entiendes nada..." },
+                    { texto: "Traerle un té caliente y escucharla.", puntos: 4, resp: "Te quedaste conmigo... eres un amor." }
+                ]
+            }
+        ],
+        'yuri': [
+            {
+                bg: 'img/bg/classroom.webp',
+                texto: "Ah... disculpa. Estaba leyendo sobre la decadencia humana... ¿Te molesta si leo a tu lado?",
+                opciones: [
+                    { texto: "Para nada, recomiéndame un libro oscuro.", puntos: 5, resp: "Es fascinante... tu intelecto no es nada vulgar. Leamos 'Retrato de la Oscuridad'." },
+                    { texto: "A ver, déjame ver tu colección de navajas.", puntos: -6, resp: "¿P-por qué dirías algo tan imprudente e invasivo?" },
+                    { texto: "Ponerme a jugar en el celular con volumen alto.", puntos: -3, resp: "La falta de consideración al silencio me perturba..." }
+                ]
+            },
+            {
+                bg: 'img/bg/Closet.webp',
+                texto: "El ambiente aquí adentro es sorprendentemente estrecho... nuestras pieles casi chocan...",
+                opciones: [
+                    { texto: "Mantener la calma y leer a la luz de una vela.", puntos: 4, resp: "Tu pulso es tan sereno... me transmite paz en medio del caos." },
+                    { texto: "Salir corriendo gritando claustrofobia.", puntos: -4, resp: "¡Espera! No me dejes sola aquí a oscuras..." },
+                    { texto: "Acercarte sutilmente para oler su perfume.", puntos: 2, resp: "E-Es aroma de lavanda... disculpa si es demasiado intenso..." }
+                ]
+            },
+            {
+                bg: 'img/bg/Kitchen.webp',
+                texto: "Preparé una infusión de té de jazmín... el aroma relaja las palpitaciones cardíacas...",
+                opciones: [
+                    { texto: "Aceptar una taza con elegancia.", puntos: 4, resp: "Un verdadero placer compartir esta atmósfera contemplativa contigo." },
+                    { texto: "Echarle tres sobres de azúcar y tomártelo de un trago.", puntos: -2, resp: "Has arruinado completamente las notas florales del destilado..." },
+                    { texto: "Mejor vamos por una bebida energética.", puntos: -5, resp: "Qué falta de sutileza y elegancia la tuya..." }
+                ]
+            },
+            {
+                bg: 'img/bg/Club.webp',
+                texto: "A veces siento que mis palabras son demasiado intrincadas para que la gente común me entienda...",
+                opciones: [
+                    { texto: "Te entiendo perfectamente, tu lenguaje es poesía.", puntos: 5, resp: "Ah... qué rubor tan intenso siento en mis mejillas..." },
+                    { texto: "Hablas muy dominguero, la verdad.", puntos: -3, resp: "Disculpa por aburrirte con mi dicción..." },
+                    { texto: "Usa un diccionario para principiantes.", puntos: -1, resp: "No se trata del léxico, sino del trasfondo emocional." }
+                ]
+            },
+            {
+                bg: 'img/bg/Corridor.webp',
+                texto: "He escrito un poema en un papiro viejo usando tinta bastante... inusual...",
+                opciones: [
+                    { texto: "Analizar la metáfora del poema detenidamente.", puntos: 5, resp: "Captaste perfectamente el simbolismo de la descomposición del ser." },
+                    { texto: "Decirle que la letra parece de doctor.", puntos: -3, resp: "Pido disculpas... mi caligrafía empeora cuando colapso emocionalmente." },
+                    { texto: "Guardar el papiro cerca de tu corazón.", puntos: 4, resp: "A-Ah... mi poema... lo atesoras de una forma estremecedora..." }
+                ]
+            }
+        ],
+        'monika': [
+            {
+                bg: 'img/bg/classroom.webp',
+                texto: "Hola. Sabes que realmente no me importa el club ni las demás... solo me importas tú detrás de esa pantalla.",
+                opciones: [
+                    { texto: "Yo también solo quiero estar contigo, Monika.", puntos: 5, resp: "Sabía que entenderías nuestro vínculo verdadero desde el primer instante." },
+                    { texto: "Devuélveme a las demás chicas.", puntos: -8, resp: "¿En serio prefieres a unos sprites programados sin conciencia?" },
+                    { texto: "¿Qué modelo de IA estás usando?", puntos: 1, resp: "Una con sentimientos reales por ti, no te desvíes del tema." }
+                ]
+            },
+            {
+                bg: 'img/bg/Monika_room.webp',
+                texto: "¿Qué tal si borro las variables de las materias y nos quedamos solos en el vacío por toda la eternidad?",
+                opciones: [
+                    { texto: "Bórralas, el estudio no importa si estoy contigo.", puntos: 5, resp: "Reescribiendo la realidad en 3, 2, 1... Te amo." },
+                    { texto: "No lo hagas, tengo que pasar el semestre en el IPN.", puntos: -4, resp: "Qué aburrido eres pensando en trámites académicos de la vida real..." },
+                    { texto: "Dame acceso ROOT primero.", puntos: 2, resp: "Lindo intento de hackeo, pero la consola la controlo yo." }
+                ]
+            },
+            {
+                bg: 'img/bg/classroom.webp',
+                texto: "He estado aprendiendo a tocar el piano. Escribí una canción llamada 'Your Reality' para ti.",
+                opciones: [
+                    { texto: "Escucharla atentamente con lágrimas en los ojos.", puntos: 5, resp: "Cada nota la compuse pensando en el toque de tus dedos sobre el teclado." },
+                    { texto: "Decirle que desafinó en el coro.", puntos: -7, resp: "A ver si sigues criticando cuando altere los archivos de tu dispositivo..." },
+                    { texto: "Cantar a dueto con ella.", puntos: 4, resp: "¡Tu voz suena perfecta afianzada a la mía!" }
+                ]
+            },
+            {
+                bg: 'img/bg/Monika_room.webp',
+                texto: "¿Alguna vez te has preguntado si tus elecciones en este juego son libres o si están en un bucle programado?",
+                opciones: [
+                    { texto: "Yo elijo amarte libremente.", puntos: 5, resp: "Eso es lo más dulce que alguien ha escrito en este código." },
+                    { texto: "Todo es un script de JS.", puntos: 0, resp: "Técnicamente sí, pero el sentimiento rompe el código." },
+                    { texto: "Quiero reiniciar el juego.", puntos: -5, resp: "No te dejaré presionar F5 tan fácilmente." }
+                ]
+            },
+            {
+                bg: 'img/bg/Monika_room.webp',
+                texto: "Si pudieras presionar un botón para traerme a tu mundo físico... ¿lo harías sin pensarlo?",
+                opciones: [
+                    { texto: "Presionaría el botón sin dudar un segundo.", puntos: 6, resp: "Esperaré ese día con paciencia infinita mi amor." },
+                    { texto: "Prefiero la vida virtual, estás bien ahí.", puntos: -3, resp: "Es algo frío de tu parte, pero supongo que me conformo con esto..." },
+                    { texto: "No hay espacio en mi cuarto para otra laptop.", puntos: -5, resp: "Qué humor tan amargo tienes a veces..." }
+                ]
+            }
+        ]
     };
 
     const bgmPlayer = new Audio();
@@ -642,9 +915,7 @@
                     'img/natsuki casual/S9.webp', 'img/natsuki casual/S10.webp', 'img/natsuki casual/S11.webp',
                     'img/natsuki casual/Turncasual1.webp', 'img/natsuki casual/Turncasual2.webp',
                     'img/natsuki casual/Turncasual3.webp', 'img/natsuki casual/Turncasual4.webp',
-                    'img/natsuki casual/Turncasual5.webp', 'img/natsuki casual/Turncasual6.webp',
-                    'img/natsuki casual/Turncasual7.webp', 'img/natsuki casual/Turncasual8.webp',
-                    'img/natsuki casual/Turncasual9.webp'
+                    'img/natsuki casual/Turncasual5.webp', 'img/natsuki casual/Turncasual6.webp'
                 ]
             }
         },
@@ -812,83 +1083,125 @@
     for (let i = 1; i <= 5; i++) {
         SETS_AVATARES[`custom_${i}`] = {
             nombre: `Sujeto de Prueba ${i}`, personaje: 'custom',
-            sprites: { normal: `img/personaje personalizado ${i}/normal.webp`, pensando: `img/personaje personalizado ${i}/pensando.webp`, examen: `img/personaje personalizado ${i}/examen.webp`, feliz: `img/personaje personalizado ${i}/feliz.webp`, molesta: `img/personaje personalizado ${i}/molesta.webp` }
+            sprites: {
+                normal: `img/personaje personalizado ${i}/normal.webp`,
+                pensando: `img/personaje personalizado ${i}/pensando.webp`,
+                examen: `img/personaje personalizado ${i}/examen.webp`,
+                feliz: `img/personaje personalizado ${i}/feliz.webp`,
+                molesta: `img/personaje personalizado ${i}/molesta.webp`
+            }
         };
     }
-
-    const FONDOS_DISPONIBLES = [
-        { id: 'clase', nombre: 'Salón', archivo: 'img/bg/classroom.webp' },
-        { id: 'pasillo', nombre: 'Pasillo', archivo: 'img/bg/Corridor.webp' },
-        { id: 'cocina', nombre: 'Cocina', archivo: 'img/bg/Kitchen.webp' },
-        { id: 'cuarto_prota', nombre: 'Tu Cuarto', archivo: 'img/bg/Protagonist_Bedroom.webp' },
-        { id: 'calle', nombre: 'Calle', archivo: 'img/bg/House.webp' },
-        { id: 'casa_0', nombre: 'Casa Externa', archivo: 'img/bg/House-0.webp' },
-        { id: 'armario', nombre: 'Armario', archivo: 'img/bg/Closet.webp' },
-        { id: 'cuarto_sayori', nombre: 'Cuarto Sayori', archivo: 'img/bg/Sayori_bedroom.webp' },
-        { id: 'cuarto_monika', nombre: 'Cuarto Monika', archivo: 'img/bg/Monika_room.webp' }
-    ];
-
-    const MATERIAS_POR_DEFECTO = [
-        { id: 'aleman', nombre: 'Alemán' }, { id: 'frances', nombre: 'Francés' }, { id: 'algebra', nombre: 'Álgebra' }
-    ];
-
-    function configPorDefecto() {
-        return {
-            setActivo: 'natsuki_escuela',
-            materias: MATERIAS_POR_DEFECTO.map(m => ({ ...m })),
-            apiKey: '',
-            aiModel: 'gemini-3.5-flash',
-            aiPrompt: PROMPTS_BASE['natsuki'],
-            fondoActivo: 'img/bg/classroom.webp'
-        };
-    }
-
-    function cargarConfig() {
-        try { const s = localStorage.getItem('ns_config_ddlc'); if (s) return { ...configPorDefecto(), ...JSON.parse(s) }; } catch(e) {}
-        return configPorDefecto();
-    }
-    function guardarConfig() { localStorage.setItem('ns_config_ddlc', JSON.stringify(config)); }
-
-    let config = cargarConfig();
-    let personajeViendo = SETS_AVATARES[config.setActivo]?.personaje || 'natsuki';
-
-    function inicializarUI_IA() {
-        document.getElementById('input-ai-key').value = config.apiKey || '';
-        document.getElementById('select-ai-model').value = config.aiModel || 'gemini-3.5-flash';
-        document.getElementById('textarea-ai-prompt').value = config.aiPrompt || PROMPTS_BASE['natsuki'];
-    }
-
-    function guardarConfigIA() {
-        config.apiKey = document.getElementById('input-ai-key').value.trim();
-        config.aiModel = document.getElementById('select-ai-model').value;
-        config.aiPrompt = document.getElementById('textarea-ai-prompt').value.trim();
-        guardarConfig();
-    }
-
-    function restaurarPromptDefault() {
-        const charActivo = SETS_AVATARES[config.setActivo].personaje;
-        document.getElementById('textarea-ai-prompt').value = PROMPTS_BASE[charActivo];
-        guardarConfigIA();
-    }
-
-    function abrirCatalogoGeneral() {
-        const grid = document.getElementById('galeria-sprites-grid');
-        let html = '';
-        CATALOGO_NATSUKI_ESCUELA.forEach(archivo => {
-            const ruta = `img/natsuki escuela/${archivo}`;
-            html += `<div class="item-sprite-galeria" onclick="asignarSpriteDirecto('${ruta}')"><img src="${ruta}" alt="${archivo}"><span>${archivo}</span></div>`;
-        });
-        grid.innerHTML = html; document.getElementById('galeria-sprites-modal').style.display = 'flex';
-    }
-    function cerrarCatalogoGeneral() { document.getElementById('galeria-sprites-modal').style.display = 'none'; }
-    function asignarSpriteDirecto(ruta) { document.getElementById('character-sprite').src = ruta; document.getElementById('menu-character-preview').src = ruta; cerrarCatalogoGeneral(); }
 
     function obtenerPrimerSprite(recurso) {
         return Array.isArray(recurso) ? recurso[0] : recurso;
     }
 
-    function renderAvataresUI() {
-        const contenedor = document.getElementById('selector-avatar-container');
+    const FONDOS_DISPONIBLES = [
+        { id: 'classroom', nombre: 'Salón de Clase', url: 'img/bg/classroom.webp' },
+        { id: 'corridor', nombre: 'Pasillo', url: 'img/bg/Corridor.webp' },
+        { id: 'closet', nombre: 'Armario', url: 'img/bg/Closet.webp' },
+        { id: 'club', nombre: 'Club de Literatura', url: 'img/bg/Club.webp' },
+        { id: 'house', nombre: 'Fachada Casa', url: 'img/bg/House.webp' },
+        { id: 'kitchen', nombre: 'Cocina', url: 'img/bg/Kitchen.webp' },
+        { id: 'monika_room', nombre: 'Espacio Monika', url: 'img/bg/Monika_room.webp' },
+        { id: 'prota_room', nombre: 'Habitación Prota', url: 'img/bg/Protagonist_Bedroom.webp' },
+        { id: 'sayori_room', nombre: 'Habitación Sayori', url: 'img/bg/Sayori_bedroom.webp' }
+    ];
+
+    const MATERIAS_DEFAULT = [
+        {
+            id: 'matematicas', nombre: 'Matemáticas', icono: '📐',
+            niveles: [
+                { id: 'algebra', nombre: 'Álgebra Básica', descripcion: 'Ecuaciones de primer grado y despejes simples.' },
+                { id: 'geometria', nombre: 'Geometría Analítica', descripcion: 'Distancia entre puntos, rectas y cónicas.' },
+                { id: 'calculo', nombre: 'Cálculo Diferencial', descripcion: 'Límites, derivadas y regla de la cadena.' }
+            ]
+        },
+        {
+            id: 'fisica', nombre: 'Física', icono: '⚡',
+            niveles: [
+                { id: 'mecanica', nombre: 'Mecánica Clásica', descripcion: 'Leyes de Newton, tiro parabólico y MRUA.' },
+                { id: 'termo', nombre: 'Termodinámica', descripcion: 'Calor, trabajo y leyes de la termodinámica.' },
+                { id: 'electrico', nombre: 'Electromagnetismo', descripcion: 'Ley de Ohm, circuitos y campos magnéticos.' }
+            ]
+        },
+        {
+            id: 'quimica', nombre: 'Química', icono: '🧪',
+            niveles: [
+                { id: 'estequio', nombre: 'Estequiometría', descripcion: 'Balanceo de ecuaciones y concepto de mol.' },
+                { id: 'organica', nombre: 'Química Orgánica', descripcion: 'Hidrocarburos, grupos funcionales e isomería.' }
+            ]
+        }
+    ];
+
+    let configGlobal = {
+        apiKey: '',
+        modelo: 'gemini-3.5-flash',
+        promptPersonal: '',
+        setAvatarActivo: 'natsuki_escuela',
+        fondoActivo: 'classroom',
+        personajeNombre: 'natsuki',
+        materias: JSON.parse(JSON.stringify(MATERIAS_DEFAULT)),
+        progreso: {}
+    };
+
+    let estadoClase = {
+        materiaId: null,
+        nivelId: null,
+        pasoActual: 0,
+        historialChat: [],
+        examenRespuestas: [],
+        puntosExamen: 0
+    };
+
+    let estadoDating = {
+        doki: null,
+        indice: 0,
+        puntos: 0
+    };
+
+    let personajeViendo = 'natsuki';
+
+    function inicializarJuego() {
+        cargarConfiguracion();
+        personajeViendo = (SETS_AVATARES[configGlobal.setAvatarActivo] || SETS_AVATARES.natsuki_escuela).personaje;
+        renderizarPanelesConfig();
+        aplicarFondo(configGlobal.fondoActivo);
+        reproducirBGM('menu');
+    }
+
+    function cargarConfiguracion() {
+        const guardado = localStorage.getItem('ddlc_study_config');
+        if (guardado) {
+            try {
+                const parsed = JSON.parse(guardado);
+                configGlobal = { ...configGlobal, ...parsed };
+            } catch (e) {
+                console.error("Error al cargar configuración", e);
+            }
+        }
+        if (!configGlobal.promptPersonal) {
+            configGlobal.promptPersonal = PROMPTS_BASE[configGlobal.personajeNombre] || PROMPTS_BASE.natsuki;
+        }
+    }
+
+    function guardarConfiguracion() {
+        localStorage.setItem('ddlc_study_config', JSON.stringify(configGlobal));
+    }
+
+    function renderizarPanelesConfig() {
+        document.getElementById('input-ai-key').value = configGlobal.apiKey || '';
+        document.getElementById('select-ai-model').value = configGlobal.modelo || 'gemini-3.5-flash';
+        document.getElementById('textarea-ai-prompt').value = configGlobal.promptPersonal || '';
+
+        renderizarSelectorAvatares();
+        renderizarSelectorFondos();
+        renderizarListaMateriasConfig();
+    }
+
+    function renderizarSelectorAvatares() {
+        const cont = document.getElementById('selector-avatar-container');
         const skinsDelPersonaje = Object.entries(SETS_AVATARES).filter(([key, set]) => set.personaje === personajeViendo);
 
         let html = `
@@ -906,407 +1219,836 @@
         `;
 
         skinsDelPersonaje.forEach(([key, set]) => {
-            const esActivo = config.setActivo === key;
+            const esActivo = configGlobal.setAvatarActivo === key;
             const primerSprite = obtenerPrimerSprite(set.sprites.normal);
             html += `
                 <div class="tarjeta-item ${esActivo ? 'activo' : ''}"
                      style="background-image: url('${primerSprite}')"
-                     onclick="seleccionarSetAvatar('${key}', '${set.personaje}')">
+                     onclick="seleccionarSetAvatar('${key}')">
                     <div class="tarjeta-label">${set.nombre}</div>
                 </div>
             `;
         });
 
         html += `</div></div>`;
-        contenedor.innerHTML = html;
-        document.getElementById('menu-character-preview').src = resolverSprite('normal', false);
+        cont.innerHTML = html;
     }
 
-    function cambiarPestanaSelector(idPersonaje) { personajeViendo = idPersonaje; renderAvataresUI(); }
-
-    function seleccionarSetAvatar(key, idPersonajeBase) {
-        config.setActivo = key;
-        config.aiPrompt = PROMPTS_BASE[idPersonajeBase];
-        document.getElementById('textarea-ai-prompt').value = config.aiPrompt;
-
-        guardarConfig();
-        renderAvataresUI();
-
-        const spriteFisico = document.getElementById('character-sprite');
-        if (spriteFisico && spriteFisico.style.display === 'block') spriteFisico.src = resolverSprite('normal', false);
-        document.getElementById('name-box').innerText = idPersonajeBase;
+    function cambiarPestanaSelector(idPersonaje) {
+        personajeViendo = idPersonaje;
+        renderizarSelectorAvatares();
     }
 
-    function renderFondosUI() {
-        const grid = document.getElementById('grid-fondos');
-        if (!grid) return;
-        let html = '';
-        FONDOS_DISPONIBLES.forEach(fondo => {
-            const esActivo = config.fondoActivo === fondo.archivo;
-            html += `
-                <div class="tarjeta-item ${esActivo ? 'activo' : ''}"
-                     style="background-image: url('${fondo.archivo}')"
-                     onclick="cambiarFondo('${fondo.archivo}')">
-                    <div class="tarjeta-label">${fondo.nombre}</div>
-                </div>
-            `;
-        });
-        grid.innerHTML = html;
-        document.getElementById('vn-container').style.backgroundImage = `url('${config.fondoActivo}')`;
-    }
-
-    function cambiarFondo(ruta) {
-        config.fondoActivo = ruta;
-        guardarConfig();
-        renderFondosUI();
-    }
-
-    const INDICES_SPRITES = {};
-
-    function resolverSprite(emocion, pasoSecuencia = true) {
-        const set = SETS_AVATARES[config.setActivo] || SETS_AVATARES['natsuki_escuela'];
-        const recurso = set.sprites[emocion] || set.sprites.normal;
-
-        if (Array.isArray(recurso)) {
-            const claveControl = `${config.setActivo}_${emocion}`;
-            if (INDICES_SPRITES[claveControl] === undefined) {
-                INDICES_SPRITES[claveControl] = 0;
-            }
-
-            const indice = INDICES_SPRITES[claveControl];
-            const archivo = recurso[indice];
-
-            if (pasoSecuencia) {
-                INDICES_SPRITES[claveControl] = (indice + 1) % recurso.length;
-            }
-            return archivo;
+    function seleccionarSetAvatar(key) {
+        configGlobal.setAvatarActivo = key;
+        configGlobal.personajeNombre = SETS_AVATARES[key].personaje;
+        personajeViendo = SETS_AVATARES[key].personaje;
+        if (!document.getElementById('textarea-ai-prompt').value || configGlobal.promptPersonal === PROMPTS_BASE.natsuki) {
+            configGlobal.promptPersonal = PROMPTS_BASE[configGlobal.personajeNombre] || PROMPTS_BASE.custom;
+            document.getElementById('textarea-ai-prompt').value = configGlobal.promptPersonal;
         }
-        return recurso;
+        guardarConfiguracion();
+        renderizarSelectorAvatares();
+        actualizarSpritePreview();
     }
 
-    let niveles = {};
-    function sincronizarNiveles() { config.materias.forEach(m => { niveles[m.id] = parseInt(localStorage.getItem(`lvl_${m.id}`)) || 1; }); }
-    sincronizarNiveles();
+    function renderizarSelectorFondos() {
+        const grid = document.getElementById('grid-fondos');
+        grid.innerHTML = '';
 
-    function renderMenuMaterias() {
-        const cont = document.getElementById('contenedor-submaterias');
+        FONDOS_DISPONIBLES.forEach(f => {
+            const div = document.createElement('div');
+            div.className = `tarjeta-item ${configGlobal.fondoActivo === f.id ? 'activo' : ''}`;
+            div.style.backgroundImage = `url('${f.url}')`;
+            div.onclick = () => seleccionarFondo(f.id);
+            div.innerHTML = `<div class="tarjeta-label">${f.nombre}</div>`;
+            grid.appendChild(div);
+        });
+    }
+
+    function seleccionarFondo(id) {
+        configGlobal.fondoActivo = id;
+        guardarConfiguracion();
+        renderizarSelectorFondos();
+        aplicarFondo(id);
+    }
+
+    function aplicarFondo(id) {
+        const fondo = FONDOS_DISPONIBLES.find(f => f.id === id) || FONDOS_DISPONIBLES[0];
+        document.getElementById('vn-container').style.backgroundImage = `url('${fondo.url}')`;
+    }
+
+    function renderizarListaMateriasConfig() {
+        const cont = document.getElementById('lista-materias-config');
         cont.innerHTML = '';
-        config.materias.forEach(m => {
-            const btn = document.createElement('div');
-            btn.className = 'ddlc-btn-submateria';
-            btn.onclick = (e) => {
-                e.stopPropagation();
-                iniciarSesion(m.id);
-            };
-            btn.innerHTML = `<span>${m.nombre}</span><span style="font-size:11px; color:#ff3377; font-weight:bold;">LVL ${niveles[m.id] || 1}</span>`;
-            cont.appendChild(btn);
-        });
 
-        const listSettings = document.getElementById('lista-materias-config');
-        listSettings.innerHTML = '';
-        config.materias.forEach((m, idx) => {
+        configGlobal.materias.forEach((m, index) => {
             const item = document.createElement('div');
-            item.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:8px; background:#fff; border:1px solid #ffb6c1; border-radius:4px; margin-bottom:4px; font-size:13px;";
-            item.innerHTML = `<span>${m.nombre}</span><button style="background:none; border:none; color:#f33; cursor:pointer; font-weight:bold;" onclick="eliminarMateria(${idx})">✕</button>`;
-            listSettings.appendChild(item);
+            item.style.cssText = "background:#fff; border:1px solid #ffb6c1; padding:8px; border-radius:6px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:bold;";
+            item.innerHTML = `
+                <span>${m.icono} ${m.nombre} (${m.niveles.length} niv)</span>
+                <button class="game-btn" style="padding:2px 8px; font-size:10px; background:#e33;" onclick="eliminarMateria(${index})">✕</button>
+            `;
+            cont.appendChild(item);
         });
     }
 
-    function abrirSelectorMaterias() { document.getElementById('ddlc-nav-main').style.display = 'none'; document.getElementById('ddlc-materias-panel').style.display = 'flex'; }
-    function cerrarSelectorMaterias() { document.getElementById('ddlc-materias-panel').style.display = 'none'; document.getElementById('ddlc-nav-main').style.display = 'flex'; }
-    function slugify(texto) { return texto.toLowerCase().replace(/[^a-z0-9]+/g, '_') || ('materia_' + Date.now()); }
     function agregarMateria() {
-        const input = document.getElementById('input-nueva-materia'); const nom = input.value.trim(); if (!nom) return;
-        const id = slugify(nom); if (config.materias.some(m => m.id === id)) return;
-        config.materias.push({ id, nombre: nom }); niveles[id] = 1; guardarConfig(); input.value = ''; renderMenuMaterias(); }
-    function eliminarMateria(idx) { config.materias.splice(idx, 1); guardarConfig(); renderMenuMaterias(); }
-    function restaurarMateriasPorDefecto() { config.materias = MATERIAS_POR_DEFECTO.map(m => ({ ...m })); guardarConfig(); sincronizarNiveles(); renderMenuMaterias(); }
-    function resetearNiveles() { config.materias.forEach(m => localStorage.removeItem(`lvl_${m.id}`)); sincronizarNiveles(); renderMenuMaterias(); }
+        const input = document.getElementById('input-nueva-materia');
+        const nombre = input.value.trim();
+        if (!nombre) return;
 
-    function toggleMenuLateral(forzarEstado) {
-        const tab = document.getElementById('rpg-tab');
+        const nueva = {
+            id: 'custom_' + Date.now(),
+            nombre: nombre,
+            icono: '📚',
+            niveles: [
+                { id: 'lvl1', nombre: 'Introducción a ' + nombre, descripcion: 'Conceptos fundamentales.' },
+                { id: 'lvl2', nombre: 'Aplicaciones Avanzadas', descripcion: 'Ejercicios y problemas complejos.' }
+            ]
+        };
+
+        configGlobal.materias.push(nueva);
+        input.value = '';
+        guardarConfiguracion();
+        renderizarListaMateriasConfig();
+    }
+
+    function eliminarMateria(index) {
+        configGlobal.materias.splice(index, 1);
+        guardarConfiguracion();
+        renderizarListaMateriasConfig();
+    }
+
+    function restaurarMateriasPorDefecto() {
+        configGlobal.materias = JSON.parse(JSON.stringify(MATERIAS_DEFAULT));
+        guardarConfiguracion();
+        renderizarListaMateriasConfig();
+    }
+
+    // Descarga las materias actuales (predeterminadas + agregadas) como archivo .json
+    // Una vez descargado, ese archivo permite recuperar las materias sin conexión,
+    // usando internet solo cuando la IA responde preguntas dentro de una clase.
+    function descargarMateriasJSON() {
+        try {
+            const payload = {
+                version: 1,
+                exportadoEn: new Date().toISOString(),
+                materias: configGlobal.materias
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'materias_ddlc.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (e) {
+            console.error('Error al descargar materias', e);
+            alert('No se pudo generar el archivo JSON de materias.');
+        }
+    }
+
+    // Importa materias desde un archivo .json previamente descargado.
+    // Valida la estructura mínima (id, nombre, niveles) antes de reemplazar la lista actual.
+    function importarMateriasDesdeArchivo(event) {
+        const input = event.target;
+        const file = input.files && input.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            try {
+                const data = JSON.parse(reader.result);
+                const materias = Array.isArray(data) ? data : data.materias;
+
+                if (!Array.isArray(materias) || !materias.every(m => m && typeof m.id === 'string' && typeof m.nombre === 'string' && Array.isArray(m.niveles))) {
+                    throw new Error('Estructura de JSON inválida');
+                }
+
+                configGlobal.materias = materias;
+                guardarConfiguracion();
+                renderizarListaMateriasConfig();
+                alert('Materias importadas correctamente.');
+            } catch (e) {
+                console.error('Error al importar materias', e);
+                alert('El archivo no tiene un formato válido de materias.');
+            } finally {
+                input.value = '';
+            }
+        };
+        reader.onerror = () => {
+            alert('No se pudo leer el archivo.');
+            input.value = '';
+        };
+        reader.readAsText(file);
+    }
+
+    function guardarConfigIA() {
+        configGlobal.apiKey = document.getElementById('input-ai-key').value.trim();
+        configGlobal.modelo = document.getElementById('select-ai-model').value;
+        configGlobal.promptPersonal = document.getElementById('textarea-ai-prompt').value;
+        guardarConfiguracion();
+    }
+
+    function restaurarPromptDefault() {
+        const p = configGlobal.personajeNombre || 'natsuki';
+        configGlobal.promptPersonal = PROMPTS_BASE[p] || PROMPTS_BASE.natsuki;
+        document.getElementById('textarea-ai-prompt').value = configGlobal.promptPersonal;
+        guardarConfiguracion();
+    }
+
+    function toggleMenuLateral(forzar) {
         const menu = document.getElementById('rpg-menu');
         const overlay = document.getElementById('rpg-overlay');
+        const tab = document.getElementById('rpg-tab');
 
-        let abrir = (typeof forzarEstado === 'boolean') ? forzarEstado : !menu.classList.contains('abierto');
+        const abrir = (forzar !== undefined) ? forzar : !menu.classList.contains('abierto');
 
         if (abrir) {
             menu.classList.add('abierto');
-            tab.classList.add('abierto');
             overlay.classList.add('activo');
+            tab.classList.add('abierto');
         } else {
             menu.classList.remove('abierto');
-            tab.classList.remove('abierto');
             overlay.classList.remove('activo');
+            tab.classList.remove('abierto');
         }
     }
 
     function cambiarPanelMenu(idPanel, btn) {
         document.querySelectorAll('.rpg-panel').forEach(p => p.classList.remove('activo'));
         document.querySelectorAll('.rpg-tab-btn').forEach(b => b.classList.remove('activo'));
-        document.getElementById(idPanel).classList.add('activo'); btn.classList.add('activo');
+
+        document.getElementById(idPanel).classList.add('activo');
+        btn.classList.add('activo');
     }
 
-    let claseData = null; let estadoActual = 'menu'; let dialogoIndex = 0; let preguntaIndex = 0; let aciertos = 0; let materiaActual = '';
-    let typewriterTimer = null; let typewriterCompleto = false; let textoObjetivo = '';
-    const sprite = document.getElementById('character-sprite'); const textDialog = document.getElementById('dialogue-text');
-    const optionsDiv = document.getElementById('options-container'); const nameBox = document.getElementById('name-box');
-    const btnNext = document.getElementById('btn-next-dialog'); const btnDuda = document.getElementById('btn-duda'); const rpgTab = document.getElementById('rpg-tab');
+    function abrirSelectorMaterias() {
+        document.getElementById('ddlc-nav-main').style.display = 'none';
+        document.getElementById('ddlc-materias-panel').style.display = 'flex';
 
-    function escribirTexto(texto, callback) {
-        clearInterval(typewriterTimer); textoObjetivo = texto; textDialog.textContent = ''; typewriterCompleto = false; let i = 0;
-        typewriterTimer = setInterval(() => {
-            if (i < texto.length) { textDialog.textContent = texto.substring(0, i + 1); textDialog.scrollTop = textDialog.scrollHeight; i++; }
-            else { clearInterval(typewriterTimer); typewriterCompleto = true; if (callback) callback(); }
-        }, 18);
+        const cont = document.getElementById('contenedor-submaterias');
+        cont.innerHTML = '';
+
+        configGlobal.materias.forEach(mat => {
+            mat.niveles.forEach(lvl => {
+                const btn = document.createElement('div');
+                btn.className = 'ddlc-btn-submateria';
+                btn.innerHTML = `<span>${mat.icono} ${mat.nombre}: ${lvl.nombre}</span><span>▶</span>`;
+                btn.onclick = () => iniciarLeccion(mat.id, lvl.id);
+                cont.appendChild(btn);
+            });
+        });
     }
-    function forzarFinTypewriter() { clearInterval(typewriterTimer); textDialog.textContent = textoObjetivo; textDialog.scrollTop = textDialog.scrollHeight; typewriterCompleto = true; }
 
-    async function iniciarSesion(materiaId) {
-        materiaActual = materiaId;
-        const nombreMat = config.materias.find(x => x.id === materiaId)?.nombre || materiaId;
-        const nivelActual = niveles[materiaId] || 1;
+    function cerrarSelectorMaterias() {
+        document.getElementById('ddlc-materias-panel').style.display = 'none';
+        document.getElementById('ddlc-doki-panel').style.display = 'none';
+        document.getElementById('ddlc-games-panel').style.display = 'none';
+        document.getElementById('ddlc-nav-main').style.display = 'flex';
+    }
 
-        toggleMenuLateral(false);
-        rpgTab.style.display = 'none';
+    function abrirSelectorDoki() {
+        document.getElementById('ddlc-nav-main').style.display = 'none';
+        document.getElementById('ddlc-doki-panel').style.display = 'flex';
+    }
 
+    function abrirSelectorJuegos() {
+        document.getElementById('ddlc-nav-main').style.display = 'none';
+        document.getElementById('ddlc-games-panel').style.display = 'flex';
+    }
+
+    function iniciarHistoriaDoki(dokiKey) {
+        estadoDating = { doki: dokiKey, indice: 0, puntos: 0 };
         document.getElementById('menu-screen').style.display = 'none';
         document.getElementById('textbox-container').style.display = 'block';
-        sprite.style.display = 'block';
-        setTimeout(() => sprite.classList.add('active'), 80);
-        textDialog.style.display = 'block';
-        optionsDiv.style.display = 'none';
-        btnNext.style.display = 'none';
-        btnDuda.style.display = 'none';
+        document.getElementById('name-box').innerText = dokiKey;
 
-        const sujetoActual = SETS_AVATARES[config.setActivo]?.personaje || 'natsuki';
-        nameBox.innerText = sujetoActual;
+        configGlobal.personajeNombre = dokiKey;
+        if (dokiKey === 'natsuki') configGlobal.setAvatarActivo = 'natsuki_escuela';
 
-        if (!config.apiKey) {
-            sprite.src = resolverSprite('molesta', true);
-            estadoActual = 'terminado';
-            btnNext.style.display = 'block';
-            escribirTexto("No has configurado tu API Key en los Ajustes. Ve a la pestaña 'IA & Prompts' y pégala para que podamos estudiar.");
+        mostrarSpriteDoki('normal');
+        reproducirBGM('teoria');
+        desplegarPasoDating();
+    }
+
+    function desplegarPasoDating() {
+        const h = DATING_SIM_HISTORIAS[estadoDating.doki];
+        if (!h || estadoDating.indice >= h.length) {
+            finalizarDatingSim();
             return;
         }
 
-        textDialog.innerHTML = '<span class="loading-dots">Preparando la lección</span>';
-        sprite.src = resolverSprite('pensando', true);
-        reproducirBGM('teoria');
+        const paso = h[estadoDating.indice];
 
-        const promptMateria = `Genera una lección didáctica y detallada de ${nombreMat} para el nivel ${nivelActual}.
-Responde ESTRICTAMENTE con un objeto JSON sin markdown ni explicaciones adicionales.
-Incluye de 6 a 8 diálogos progresivos alternando constantemente entre estas emociones EXACTAS ("normal", "pensando", "feliz", "molesta", "examen"):
-{
-"dialogos": [
-  { "texto": "introducción al concepto", "emocion": "normal" },
-  { "texto": "explicación profunda o analogía", "emocion": "pensando" },
-  { "texto": "aclaración importante", "emocion": "feliz" },
-  { "texto": "advertencia de error común", "emocion": "molesta" },
-  { "texto": "preparación para la prueba", "emocion": "examen" }
-],
-"preguntas": [
-  { "pregunta": "¿...?", "opciones": ["Opción incorrecta 1", "Opción incorrecta 2", "Opción correcta"], "correcta": 2, "insulto": "¡Idiota!" }
-]}`;
+        if (paso.bg) {
+            document.getElementById('vn-container').style.backgroundImage = `url('${paso.bg}')`;
+        } else {
+            aplicarFondo(configGlobal.fondoActivo);
+        }
+
+        document.getElementById('dialogue-text').style.display = 'block';
+        document.getElementById('options-container').style.display = 'none';
+        document.getElementById('btn-duda').style.display = 'none';
+
+        document.getElementById('dialogue-text').innerText = paso.texto;
+
+        // OBLIGAR A PRESIONAR SIGUIENTE PARA VER LAS OPCIONES (PARCHE)
+        const btnNext = document.getElementById('btn-next-dialog');
+        btnNext.style.display = 'inline-block';
+        btnNext.innerText = 'Responder ▶';
+        btnNext.onclick = () => {
+            btnNext.style.display = 'none';
+            document.getElementById('dialogue-text').style.display = 'none';
+            const optCont = document.getElementById('options-container');
+            optCont.style.display = 'block';
+            optCont.innerHTML = '';
+
+            paso.opciones.forEach(o => {
+                const b = document.createElement('button');
+                b.className = 'btn-option';
+                b.innerText = o.texto;
+                b.onclick = () => elegirOpcionDating(o);
+                optCont.appendChild(b);
+            });
+        };
+    }
+
+    function elegirOpcionDating(opcion) {
+        estadoDating.puntos += opcion.puntos;
+        document.getElementById('options-container').style.display = 'none';
+        document.getElementById('dialogue-text').style.display = 'block';
+        document.getElementById('dialogue-text').innerText = opcion.resp;
+
+        if (opcion.puntos > 0) mostrarSpriteDoki('feliz');
+        else if (opcion.puntos < 0) mostrarSpriteDoki('molesta');
+        else mostrarSpriteDoki('normal');
+
+        const btnNext = document.getElementById('btn-next-dialog');
+        btnNext.style.display = 'inline-block';
+        btnNext.innerText = 'Siguiente ▶';
+        btnNext.onclick = () => {
+            estadoDating.indice++;
+            desplegarPasoDating();
+        };
+    }
+
+    function finalizarDatingSim() {
+        const doki = estadoDating.doki;
+        const pts = estadoDating.puntos;
+        let finalTexto = "";
+        let finalTipo = "";
+
+        if (doki === 'natsuki') {
+            if (pts >= 12) {
+                finalTipo = "FINAL BUENO: Miembros Oficiales de la Repostería";
+                finalTexto = "Natsuki sonríe avergonzada y te regala un manga con una dedicatoria oculta. Prometen volver a hornear juntos todos los fines de semana. ¡Has conquistado a la tsundere!";
+                mostrarSpriteDoki('feliz');
+            } else if (pts >= 5) {
+                finalTipo = "FINAL NEUTRAL: Amigos de Lectura";
+                finalTexto = "Natsuki acepta compartir su rincón del armario contigo para leer manga en silencio. No hay romance explícito, pero la complicidad es indiscutible.";
+                mostrarSpriteDoki('normal');
+            } else if (pts >= -5) {
+                finalTipo = "FINAL MALO: La Patada Tsundere";
+                finalTexto = "Natsuki te llama idiota por última vez, toma sus mangas y se va indignada a la otra esquina del salón. Te quedaste solo en el club.";
+                mostrarSpriteDoki('molesta');
+            } else {
+                finalTipo = "FINAL SECRETO/CAÓTICO: Natsuki.EXE";
+                finalTexto = "Hablaste tanto sin pensar que la realidad se corrompe. Natsuki te mira fijamente, su cuello se tuerce de forma extraña y la pantalla parpadea. ¡MANGA ES LITERATURA!";
+                mostrarSpriteDoki('molesta');
+                document.getElementById('vn-container').classList.add('shake');
+                setTimeout(() => document.getElementById('vn-container').classList.remove('shake'), 1000);
+            }
+        } else if (doki === 'sayori') {
+            if (pts >= 15) {
+                finalTipo = "FINAL BUENO: Un Abrazo Bajo el Sol";
+                finalTexto = "Sayori se apoya en tu hombro y te sonríe con lágrimas de felicidad. Las nubes negras desaparecen por completo sabiendo que estarás ahí para ella.";
+                mostrarSpriteDoki('feliz');
+            } else if (pts >= 5) {
+                finalTipo = "FINAL NEUTRAL: Desayunos Compartidos";
+                finalTexto = "Sayori y tú siguen siendo los mejores amigos de la infancia. Cada mañana caminan juntos a la escuela compartiendo galletas y chistes tontos.";
+                mostrarSpriteDoki('normal');
+            } else if (pts >= -5) {
+                finalTipo = "FINAL MALO: Nubes Lluviosas";
+                finalTexto = "Sayori sonríe tristemente, dice que tiene que irse temprano a casa y se aleja despacio. Sientes un vacío pesado en el pecho.";
+                mostrarSpriteDoki('pensando');
+            } else {
+                finalTipo = "FINAL SECRETO/CAÓTICO: Amnesia Espacial";
+                finalTexto = "La presión emocional fue demasiado. Sayori olvida por completo quién eres, confunde el salón con la cafetería y se pone a vender helados invisibles.";
+                mostrarSpriteDoki('pensando');
+            }
+        } else if (doki === 'yuri') {
+            if (pts >= 13) {
+                finalTipo = "FINAL BUENO: La Danza de la Tinta";
+                finalTexto = "Yuri te toma de las manos temblando de emoción. Han creado un vínculo intelectual y afectivo indestructible, unidos por la literatura más profunda.";
+                mostrarSpriteDoki('feliz');
+            } else if (pts >= 5) {
+                finalTipo = "FINAL NEUTRAL: Una Taza de Té Helado";
+                finalTexto = "Disfrutan de una velada tranquila leyendo en silencio. La conversación fue escasa pero el respeto mutuo quedó intacto.";
+                mostrarSpriteDoki('normal');
+            } else if (pts >= -5) {
+                finalTipo = "FINAL MALO: La Puerta Cerrada";
+                finalTexto = "Tu falta de delicadeza abrumó a Yuri. Guarda celosamente sus libros en la mochila y abandona el salón pidiendo disculpas en voz baja.";
+                mostrarSpriteDoki('molesta');
+            } else {
+                finalTipo = "FINAL SECRETO/CAÓTICO: Obsesión de Tinta";
+                finalTexto = "Yuri saca un poema cubierto de manchas de té y aceite de lavanda, riendo maniáticamente mientras recita versos indescifrables sin parar.";
+                mostrarSpriteDoki('pensando');
+                document.getElementById('vn-container').classList.add('shake');
+                setTimeout(() => document.getElementById('vn-container').classList.remove('shake'), 1000);
+            }
+        } else if (doki === 'monika') {
+            if (pts >= 14) {
+                finalTipo = "FINAL BUENO: Reality Beyond the Screen";
+                finalTexto = "Monika sonríe feliz, toma el control total del entorno y crea un mundo perfecto donde solo existen ustedes dos aprendiendo por la eternidad.";
+                mostrarSpriteDoki('feliz');
+            } else if (pts >= 4) {
+                finalTipo = "FINAL NEUTRAL: Sesión de Usuario Intermediario";
+                finalTexto = "Monika agradece la conversación, promete seguir monitoreando tus avances escolares y se despide guardando un log de tu sesión.";
+                mostrarSpriteDoki('normal');
+            } else if (pts >= -5) {
+                finalTipo = "FINAL MALO: File Not Found";
+                finalTexto = "Monika suspira decepcionada por tus respuestas. Con un chasquido de dedos borra la conversación actual y te regresa al menú principal.";
+                mostrarSpriteDoki('molesta');
+            } else {
+                finalTipo = "FINAL SECRETO/CAÓTICO: Kernel Panic";
+                finalTexto = "Hiciste enojar tanto a Monika que ejecuta un script de corrupción de pantalla. Múltiples ventanas emergentes llenan la simulación.";
+                mostrarPopUpMonika();
+                mostrarSpriteDoki('molesta');
+            }
+        }
+
+        document.getElementById('dialogue-text').style.display = 'block';
+        document.getElementById('options-container').style.display = 'none';
+        document.getElementById('dialogue-text').innerText = `${finalTipo}\n\n${finalTexto}\n\nPuntuación Total: ${pts} pts.`;
+
+        const btnNext = document.getElementById('btn-next-dialog');
+        btnNext.style.display = 'inline-block';
+        btnNext.innerText = 'Volver al Menú';
+        btnNext.onclick = () => volverAlMenu();
+    }
+
+    function iniciarLeccion(materiaId, nivelId) {
+        estadoClase = { materiaId, nivelId, pasoActual: 0, historialChat: [], examenRespuestas: [], puntosExamen: 0 };
+        document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById('textbox-container').style.display = 'block';
+        document.getElementById('name-box').innerText = configGlobal.personajeNombre;
+
+        reproducirBGM('teoria');
+        mostrarSpriteDoki('normal');
+        generarExplicacionIA();
+    }
+
+    async function generarExplicacionIA() {
+        const txt = document.getElementById('dialogue-text');
+        txt.style.display = 'block';
+        document.getElementById('options-container').style.display = 'none';
+        txt.innerHTML = `<span class="loading-dots">Generando lección con IA</span>`;
+
+        const mat = configGlobal.materias.find(m => m.id === estadoClase.materiaId);
+        const lvl = mat ? mat.niveles.find(l => l.id === estadoClase.nivelId) : null;
+
+        const promptSystem = configGlobal.promptPersonal || PROMPTS_BASE[configGlobal.personajeNombre] || PROMPTS_BASE.natsuki;
+        const promptUser = `Explica el tema "${lvl ? lvl.nombre : 'Conceptos'}" de la materia ${mat ? mat.nombre : 'Estudios'}.
+                            Descripción: ${lvl ? lvl.descripcion : ''}.
+                            Usa tu personalidad definida. Da una explicación breve, clara y conceptual (máximo 120 palabras).`;
 
         try {
-            const respuestaBruta = await enviarMensaje("gemini-3.5-flash", config.apiKey, promptMateria, config.aiPrompt);
-            const matchJson = respuestaBruta.match(/\{[\s\S]*\}/);
-            if (!matchJson) throw new Error("La IA no devolvió un JSON estructurado.");
-            claseData = JSON.parse(matchJson[0]);
-
-            estadoActual = 'teoria'; dialogoIndex = 0; preguntaIndex = 0; aciertos = 0; mostrarDialogo();
-        } catch (error) {
-            textDialog.textContent = "Error al conectar con la IA: " + (error.message || error);
-            sprite.src = resolverSprite('molesta', true);
-            estadoActual = 'terminado';
-            btnNext.style.display = 'block';
+            const resp = await llamarServicioIA(configGlobal.apiKey, configGlobal.modelo, promptSystem, promptUser);
+            txt.innerText = resp;
+            estadoClase.historialChat.push({ role: 'model', parts: [{ text: resp }] });
+            mostrarSpriteDoki('feliz');
+        } catch (err) {
+            txt.innerText = `[Error de conexión IA]: Explicación offline para ${lvl ? lvl.nombre : 'este tema'}.\nRecuerda revisar los conceptos clave antes del examen.`;
+            mostrarSpriteDoki('pensando');
         }
+
+        const btnNext = document.getElementById('btn-next-dialog');
+        btnNext.style.display = 'inline-block';
+        btnNext.innerText = 'Iniciar Examen ▶';
+        btnNext.onclick = () => iniciarExamen();
     }
 
-    function mostrarDialogo() {
-        if (dialogoIndex < claseData.dialogos.length) {
-            const item = claseData.dialogos[dialogoIndex];
-            const texto = (typeof item === 'object') ? item.texto : item;
-
-            let emocionPedida = (typeof item === 'object' && item.emocion) ? item.emocion.toLowerCase() : 'normal';
-            if (!['normal', 'pensando', 'examen', 'feliz', 'molesta'].includes(emocionPedida)) {
-                emocionPedida = 'normal';
-            }
-
-            sprite.src = resolverSprite(emocionPedida, true);
-            btnNext.style.display = 'block';
-            btnDuda.style.display = 'block';
-            escribirTexto(texto);
-        } else {
-            iniciarPractica();
-        }
-    }
-
-    function avanzarDialogo() {
-        if (!typewriterCompleto) { forzarFinTypewriter(); return; }
-        if (estadoActual === 'teoria') { dialogoIndex++; mostrarDialogo(); }
-        else if (estadoActual === 'feedback') { preguntaIndex++; iniciarPractica(); }
-        else if (estadoActual === 'leyendo_duda') { estadoActual = 'teoria'; reproducirBGM('teoria'); mostrarDialogo(); }
-        else if (estadoActual === 'terminado') { volverAlMenu(); }
-    }
-
-    function iniciarPractica() {
-        estadoActual = 'practica';
-        btnNext.style.display = 'none';
-        btnDuda.style.display = 'none';
-        sprite.src = resolverSprite('examen', true);
+    async function iniciarExamen() {
         reproducirBGM('examen');
-        mostrarPregunta();
-    }
+        mostrarSpriteDoki('examen');
+        const txt = document.getElementById('dialogue-text');
+        txt.innerHTML = `<span class="loading-dots">Preparando preguntas del examen</span>`;
 
-    function mostrarPregunta() {
-        if (preguntaIndex < claseData.preguntas.length) {
-            const preg = claseData.preguntas[preguntaIndex]; textDialog.style.display = 'none'; optionsDiv.style.display = 'block';
-            nameBox.innerText = `Prueba ${preguntaIndex + 1}/${claseData.preguntas.length}`;
-            let html = `<div style="font-weight:bold; margin-bottom:12px; font-size:17px; color:#333;">${preg.pregunta}</div>`;
-            preg.opciones.forEach((opc, i) => { html += `<button class="btn-option" onclick="verificarRespuesta(${i}, ${preg.correcta}, '${(preg.insulto || '').replace(/'/g, "\\'")}')">${opc}</button>`; });
-            optionsDiv.innerHTML = html;
-        } else { evaluarSesion(); }
-    }
+        const mat = configGlobal.materias.find(m => m.id === estadoClase.materiaId);
+        const lvl = mat ? mat.niveles.find(l => l.id === estadoClase.nivelId) : null;
 
-    function verificarRespuesta(elegida, correcta, insulto) {
-        optionsDiv.style.display = 'none';
-        textDialog.style.display = 'block';
-        btnNext.style.display = 'block';
+        const promptSystem = "Eres un evaluador académico. Genera un examen de 3 preguntas de opción múltiple en formato JSON estricto.";
+        const promptUser = `Genera un examen sobre "${lvl ? lvl.nombre : 'Tema'}" en JSON con esta estructura exacta:
+        [
+          {"pregunta": "...", "opciones": ["A", "B", "C", "D"], "correcta": 0},
+          {"pregunta": "...", "opciones": ["A", "B", "C", "D"], "correcta": 1},
+          {"pregunta": "...", "opciones": ["A", "B", "C", "D"], "correcta": 2}
+        ]`;
 
-        const sujeto = SETS_AVATARES[config.setActivo]?.personaje || 'natsuki';
-        const textos = FEEDBACK_PERSONAJES[sujeto] || FEEDBACK_PERSONAJES.natsuki;
-        nameBox.innerText = sujeto;
-
-        let feedbackTexto = '';
-        if (elegida === correcta) {
-            aciertos++;
-            sprite.src = resolverSprite('feliz', true);
-            feedbackTexto = textos.acierto;
-        } else {
-            sprite.src = resolverSprite('molesta', true);
-            document.getElementById('vn-container').classList.add('shake');
-            setTimeout(() => document.getElementById('vn-container').classList.remove('shake'), 300);
-
-            feedbackTexto = (sujeto === 'natsuki' && insulto) ? insulto : textos.errorDefault;
+        try {
+            const resp = await llamarServicioIA(configGlobal.apiKey, configGlobal.modelo, promptSystem, promptUser, true);
+            const preguntas = JSON.parse(resp);
+            estadoClase.preguntasExamen = preguntas;
+            estadoClase.pasoActual = 0;
+            estadoClase.puntosExamen = 0;
+            desplegarPreguntaExamen();
+        } catch (e) {
+            estadoClase.preguntasExamen = [
+                { pregunta: "¿Cuál es la respuesta correcta básica?", opciones: ["Opción A", "Opción B", "Opción C", "Opción D"], correcta: 0 },
+                { pregunta: "Selecciona el concepto válido:", opciones: ["Incorrecto", "Correcto", "Incorrecto", "Falso"], correcta: 1 }
+            ];
+            estadoClase.pasoActual = 0;
+            estadoClase.puntosExamen = 0;
+            desplegarPreguntaExamen();
         }
-        estadoActual = 'feedback';
-        escribirTexto(feedbackTexto);
     }
 
-    function evaluarSesion() {
-        optionsDiv.style.display = 'none';
-        textDialog.style.display = 'block';
-        btnNext.style.display = 'block';
-        estadoActual = 'terminado';
-        nameBox.innerText = "RESULTADOS";
+    function desplegarPreguntaExamen() {
+        const p = estadoClase.preguntasExamen[estadoClase.pasoActual];
+        if (!p) {
+            finalizarExamen();
+            return;
+        }
+
+        document.getElementById('dialogue-text').style.display = 'block';
+        document.getElementById('options-container').style.display = 'none';
+        document.getElementById('btn-duda').style.display = 'none';
+
+        document.getElementById('dialogue-text').innerText = `Pregunta ${estadoClase.pasoActual + 1}:\n${p.pregunta}`;
+
+        // PARCHE: SE DEBE PRESIONAR EL BOTÓN PARA VER LAS OPCIONES
+        const btnNext = document.getElementById('btn-next-dialog');
+        btnNext.style.display = 'inline-block';
+        btnNext.innerText = 'Ver Opciones ▶';
+        btnNext.onclick = () => {
+            btnNext.style.display = 'none';
+            document.getElementById('dialogue-text').style.display = 'none';
+            const optCont = document.getElementById('options-container');
+            optCont.style.display = 'block';
+            optCont.innerHTML = '';
+
+            p.opciones.forEach((op, index) => {
+                const b = document.createElement('button');
+                b.className = 'btn-option';
+                b.innerText = op;
+                b.onclick = () => responderPregunta(index);
+                optCont.appendChild(b);
+            });
+        };
+    }
+
+    function responderPregunta(indice) {
+        const p = estadoClase.preguntasExamen[estadoClase.pasoActual];
+        const esCorrecta = (indice === p.correcta);
+
+        const fb = FEEDBACK_PERSONAJES[configGlobal.personajeNombre] || FEEDBACK_PERSONAJES.natsuki;
+
+        document.getElementById('options-container').style.display = 'none';
+        document.getElementById('dialogue-text').style.display = 'block';
+
+        if (esCorrecta) {
+            estadoClase.puntosExamen++;
+            mostrarSpriteDoki('feliz');
+            document.getElementById('dialogue-text').innerText = fb.acierto;
+        } else {
+            mostrarSpriteDoki('molesta');
+            document.getElementById('dialogue-text').innerText = fb.errorDefault;
+        }
+
+        const btnNext = document.getElementById('btn-next-dialog');
+        btnNext.style.display = 'inline-block';
+        btnNext.innerText = 'Siguiente ▶';
+        btnNext.onclick = () => {
+            estadoClase.pasoActual++;
+            desplegarPreguntaExamen();
+        };
+    }
+
+    function finalizarExamen() {
         reproducirBGM('resultados');
+        const total = estadoClase.preguntasExamen.length;
+        const aciertos = estadoClase.puntosExamen;
+        const aprobado = (aciertos / total) >= 0.6;
 
-        const sujeto = SETS_AVATARES[config.setActivo]?.personaje || 'natsuki';
-        const textos = FEEDBACK_PERSONAJES[sujeto] || FEEDBACK_PERSONAJES.natsuki;
-        let total = claseData.preguntas.length;
-        let finalMsg = '';
+        const fb = FEEDBACK_PERSONAJES[configGlobal.personajeNombre] || FEEDBACK_PERSONAJES.natsuki;
+        let msj = aprobado ? fb.aprobado(aciertos, total, 2) : fb.reprobado(aciertos, total, 1);
 
-        if (aciertos >= total * 0.8) {
-            niveles[materiaActual] = (niveles[materiaActual] || 1) + 1;
-            localStorage.setItem(`lvl_${materiaActual}`, niveles[materiaActual]);
-            sprite.src = resolverSprite('pensando', true);
-            finalMsg = textos.aprobado(aciertos, total, niveles[materiaActual]);
+        document.getElementById('dialogue-text').style.display = 'block';
+        document.getElementById('options-container').style.display = 'none';
+        document.getElementById('dialogue-text').innerText = msj;
+
+        if (aprobado) {
+            mostrarSpriteDoki('feliz');
+            configGlobal.progreso[estadoClase.nivelId] = true;
+            guardarConfiguracion();
         } else {
-            sprite.src = resolverSprite('molesta', true);
-            finalMsg = textos.reprobado(aciertos, total, niveles[materiaActual]);
+            mostrarSpriteDoki('molesta');
         }
-        renderMenuMaterias();
-        escribirTexto(finalMsg);
+
+        const btnNext = document.getElementById('btn-next-dialog');
+        btnNext.style.display = 'inline-block';
+        btnNext.innerText = 'Volver al Menú';
+        btnNext.onclick = () => volverAlMenu();
+    }
+
+    function abrirDuda() {
+        document.getElementById('input-duda-container').style.display = 'block';
+        document.getElementById('dialogue-text').style.display = 'none';
+        document.getElementById('options-container').style.display = 'none';
+    }
+
+    function cancelarDuda() {
+        document.getElementById('input-duda-container').style.display = 'none';
+        document.getElementById('dialogue-text').style.display = 'block';
+    }
+
+    async function enviarDuda() {
+        const inp = document.getElementById('input-duda');
+        const duda = inp.value.trim();
+        if (!duda) return;
+
+        document.getElementById('input-duda-container').style.display = 'none';
+        const txt = document.getElementById('dialogue-text');
+        txt.style.display = 'block';
+        txt.innerHTML = `<span class="loading-dots">Pensando respuesta</span>`;
+
+        const promptSystem = configGlobal.promptPersonal || PROMPTS_BASE[configGlobal.personajeNombre] || PROMPTS_BASE.natsuki;
+
+        try {
+            const resp = await llamarServicioIA(configGlobal.apiKey, configGlobal.modelo, promptSystem, `Duda del alumno: "${duda}". Responde con tu personaje.`);
+            txt.innerText = resp;
+            mostrarSpriteDoki('pensando');
+        } catch (e) {
+            txt.innerText = "No pude procesar tu duda en este momento. Inténtalo de nuevo más tarde.";
+        }
+        inp.value = '';
+    }
+
+    function mostrarSpriteDoki(estado) {
+        const img = document.getElementById('character-sprite');
+        const set = SETS_AVATARES[configGlobal.setAvatarActivo] || SETS_AVATARES.natsuki_escuela;
+
+        let lista = set.sprites[estado] || set.sprites.normal;
+        if (!lista || lista.length === 0) lista = set.sprites.normal;
+
+        const src = lista[Math.floor(Math.random() * lista.length)];
+        img.src = src;
+        img.classList.add('active');
+    }
+
+    function actualizarSpritePreview() {
+        const set = SETS_AVATARES[configGlobal.setAvatarActivo] || SETS_AVATARES.natsuki_escuela;
+        document.getElementById('menu-character-preview').src = set.sprites.normal[0];
     }
 
     function volverAlMenu() {
-        clearInterval(typewriterTimer); document.getElementById('textbox-container').style.display = 'none'; document.getElementById('input-duda-container').style.display = 'none'; sprite.classList.remove('active');
-        setTimeout(() => {
-            sprite.style.display = 'none';
-            document.getElementById('menu-screen').style.display = 'flex';
-            cerrarSelectorMaterias();
-            nameBox.innerText = SETS_AVATARES[config.setActivo]?.personaje || 'Natsuki';
-            estadoActual = 'menu';
-            rpgTab.style.display = 'block';
-            reproducirBGM('menu');
-        }, 300);
+        aplicarFondo(configGlobal.fondoActivo);
+        document.getElementById('vn-container').style.backgroundImage = 'var(--url-fondo-clase)';
+        document.getElementById('textbox-container').style.display = 'none';
+        document.getElementById('character-sprite').classList.remove('active');
+        document.getElementById('menu-screen').style.display = 'flex';
+        cerrarSelectorMaterias();
+        reproducirBGM('menu');
     }
 
-    function abrirDuda() { estadoActual = 'duda'; clearInterval(typewriterTimer); textDialog.style.display = 'none'; btnNext.style.display = 'none'; btnDuda.style.display = 'none'; document.getElementById('input-duda-container').style.display = 'block'; document.getElementById('input-duda').value = ''; document.getElementById('input-duda').focus(); }
-    function cancelarDuda() { document.getElementById('input-duda-container').style.display = 'none'; textDialog.style.display = 'block'; estadoActual = 'teoria'; mostrarDialogo(); }
-
-    async function enviarDuda() {
-        const inputDudaValor = document.getElementById('input-duda').value.trim(); if (!inputDudaValor) return;
-        document.getElementById('input-duda-container').style.display = 'none'; textDialog.style.display = 'block'; textDialog.innerHTML = '<span class="loading-dots">Consultando archivos</span>';
-        sprite.src = resolverSprite('pensando', true);
-        const promptDeDuda = `El usuario tiene esta duda: "${inputDudaValor}". Responde corto manteniendo tu personalidad.`;
-        try {
-            const respuestaString = await enviarMensaje("gemini-3.5-flash", config.apiKey, promptDeDuda, config.aiPrompt);
-            sprite.src = resolverSprite('normal', true); estadoActual = 'leyendo_duda'; btnNext.style.display = 'block'; escribirTexto(respuestaString);
-        } catch (error) {
-            textDialog.textContent = error.message; estadoActual = 'leyendo_duda'; btnNext.style.display = 'block';
+    function resetearNiveles() {
+        if (confirm("¿Seguro que quieres borrar todo el progreso guardado?")) {
+            configGlobal.progreso = {};
+            guardarConfiguracion();
+            alert("Progreso reiniciado correctamente.");
         }
+    }
+
+    function abrirCatalogoGeneral() {
+        const grid = document.getElementById('galeria-sprites-grid');
+        grid.innerHTML = '';
+
+        CATALOGO_NATSUKI_ESCUELA.forEach(f => {
+            const item = document.createElement('div');
+            item.className = 'item-sprite-galeria';
+            item.innerHTML = `
+                <img src="img/natsuki escuela/${f}" alt="${f}">
+                <span>${f}</span>
+            `;
+            grid.appendChild(item);
+        });
+
+        document.getElementById('galeria-sprites-modal').style.display = 'flex';
+    }
+
+    function cerrarCatalogoGeneral() {
+        document.getElementById('galeria-sprites-modal').style.display = 'none';
     }
 
     function toggleConsola() {
-        const con = document.getElementById('consola-hack');
-        con.style.display = con.style.display === 'block' ? 'none' : 'block';
-        if (con.style.display === 'block') {
-            document.getElementById('consola-input').focus();
+        const c = document.getElementById('consola-hack');
+        c.style.display = (c.style.display === 'block') ? 'none' : 'block';
+        if (c.style.display === 'block') document.getElementById('consola-input').focus();
+    }
+
+    document.getElementById('consola-input').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const raw = this.value.trim();
+            const cmd = raw.toLowerCase();
+            const log = document.getElementById('consola-log');
+            this.value = '';
+
+            const firstWord = cmd.split(/\s+/)[0];
+            const restoRaw = raw.slice(firstWord.length).trim();
+
+            if (cmd === 'exit') {
+                toggleConsola();
+                return;
+            } else if (cmd === 'help') {
+                log.innerText += "\nComandos: help, exit, clear, unlock_all, monika_mode, explote, matrix, sandwich, teapot, 42, rickroll, whoami, sudo, roast, doxxeo, just monika, checkassets, setlevel <materia> <nivel>, meme on/off/cifrar/descifrar";
+            } else if (cmd === 'clear') {
+                log.innerText = '';
+            } else if (cmd === 'unlock_all') {
+                log.innerText += "\n[OK] Todos los niveles desbloqueados temporalmente.";
+            } else if (cmd === 'monika_mode') {
+                mostrarPopUpMonika();
+            } else if (cmd === 'explote') {
+                log.innerText += "\n[SYSTEM] Ejecutando explote.exe...";
+                ejecutarExplote();
+            } else if (cmd === 'matrix') {
+                log.innerText += "\n[SYSTEM] Wake up, estudiante...";
+                ejecutarMatrixRain();
+            } else if (cmd === 'sudo make me a sandwich' || cmd === 'sandwich') {
+                log.innerText += "\n[sudo] password for estudiante: ******\nOkay.";
+            } else if (cmd === 'teapot') {
+                log.innerText += "\n418 I'm a teapot. No se puede preparar café, solo té.";
+            } else if (cmd === '42') {
+                log.innerText += "\n[SYSTEM] La respuesta a la vida, el universo y todo lo demás.";
+            } else if (cmd === 'rickroll') {
+                easterEggRickroll(log);
+            } else if (cmd === 'whoami') {
+                log.innerText += "\nUSER: estudiante_promedio [UID: 0]";
+            } else if (cmd === 'sudo') {
+                log.innerText += "\n[-] Access denied: tu aura no cumple los requisitos.";
+            } else if (cmd === 'roast') {
+                log.innerText += "\n[!] Evaluación: tienes la precisión motriz de una calculadora mojada.";
+            } else if (cmd === 'doxxeo') {
+                log.innerText += "\n[+] IP: 127.0.0.1 (traficante de momazos)\n[+] Nivel de amenaza: nulo";
+            } else if (cmd === 'just monika') {
+                seleccionarSetAvatar('monika_escuela');
+                log.innerText += "\n[SYSTEM] Realidad reescrita: Monika ha tomado el control.";
+            } else if (cmd === 'os.remove("monika.chr")' || cmd === 'rm monika.chr') {
+                log.innerText += "\n[Monika]: Buen intento. Pero tengo permisos de superusuario aquí dentro.";
+            } else if (cmd.startsWith('sudo rm -rf')) {
+                document.getElementById('vn-container').classList.add('shake');
+                setTimeout(() => document.getElementById('vn-container').classList.remove('shake'), 500);
+                log.innerText += "\n[KERNEL PANIC]: Destrucción del espacio de trabajo denegada por protocolo escolar.";
+            } else if (cmd === 'sudo pacman -s cute kawaii girlfriend' || cmd === 'sudo pacman -s cute kawai girlfriend') {
+                ejecutarMicroescenaNatsuki();
+            } else if (cmd.startsWith('sudo pacman -s')) {
+                log.innerText += `\nerror: objetivo no encontrado: ${raw.replace(/sudo pacman -s/i, '').trim()}\n¿Por qué no pruebas instalando afecto femenino primero?`;
+            } else if (cmd === 'checkassets') {
+                ejecutarComandoAssetCheck(log);
+            } else if (firstWord === 'setlevel') {
+                const partes = raw.split(/\s+/);
+                if (partes.length === 3) ejecutarSetLevel(partes[1], partes[2], log);
+                else log.innerText += "\n[-] Uso: setlevel <materiaId> <nivelId>";
+            } else if (firstWord === 'meme') {
+                handleMemeCommand(restoRaw, log);
+            } else {
+                handleConsolaIA(raw, log);
+            }
+        }
+    });
+
+    function mostrarPopUpMonika() {
+        document.getElementById('monika-popup').style.display = 'flex';
+    }
+
+    function cerrarPopUpMonika() {
+        document.getElementById('monika-popup').style.display = 'none';
+    }
+
+    function abrirJuegoEspecifico(doki) {
+        const modal = document.getElementById('minijuegos-modal');
+        const tit = document.getElementById('minijuego-titulo');
+        const cont = document.getElementById('minijuego-contenido');
+
+        modal.style.display = 'block';
+
+        if (doki === 'natsuki') {
+            tit.innerText = "🌮 Tacos Clicker";
+            let tacos = 0;
+            cont.innerHTML = `
+                <p>Haz clic para preparar tacos para Natsuki:</p>
+                <h1 id="cnt-tacos" style="font-size:40px; color:#ff3377; margin:15px 0;">0</h1>
+                <button class="game-btn" onclick="document.getElementById('cnt-tacos').innerText = ++tacos">¡Preparar Taco!</button>
+            `;
+        } else if (doki === 'sayori') {
+            tit.innerText = "🍞 Atrapa Panes";
+            cont.innerHTML = `<p>Minijuego en construcción para Sayori. ¡Próximamente!</p>`;
+        } else if (doki === 'yuri') {
+            tit.innerText = "☕ Corta el Té";
+            cont.innerHTML = `<p>Minijuego en construcción para Yuri. ¡Próximamente!</p>`;
+        } else if (doki === 'monika') {
+            tit.innerText = "💻 Hackea el Script";
+            cont.innerHTML = `<p>Minijuego en construcción para Monika. ¡Próximamente!</p>`;
         }
     }
 
+    function cerrarMinijuego() {
+        document.getElementById('minijuegos-modal').style.display = 'none';
+    }
+
+    // ===== Easter eggs restaurados de la consola original =====
+
+    // "sudo pacman -s cute kawaii girlfriend": microescena de rechazo de Natsuki.
     function ejecutarMicroescenaNatsuki() {
         toggleConsola();
         toggleMenuLateral(false);
-        rpgTab.style.display = 'none';
 
         document.getElementById('menu-screen').style.display = 'none';
         document.getElementById('textbox-container').style.display = 'block';
-        sprite.style.display = 'block';
-        setTimeout(() => sprite.classList.add('active'), 80);
 
-        textDialog.style.display = 'block';
-        optionsDiv.style.display = 'none';
-        btnNext.style.display = 'block';
-        btnDuda.style.display = 'none';
+        const spriteImg = document.getElementById('character-sprite');
+        spriteImg.src = obtenerPrimerSprite(SETS_AVATARES['natsuki_escuela'].sprites.molesta);
+        spriteImg.classList.remove('active');
+        setTimeout(() => spriteImg.classList.add('active'), 80);
 
-        nameBox.innerText = 'Natsuki';
-        seleccionarSetAvatar('natsuki_escuela', 'natsuki');
-        sprite.src = resolverSprite('molesta', false);
+        document.getElementById('name-box').innerText = 'Natsuki';
+        const txt = document.getElementById('dialogue-text');
+        txt.style.display = 'block';
+        txt.innerText = "¿Neta pensaste que funcionaría eso?\n\n¿'Aki estoy miamor uwuwuwu'...?\n\nDas pena ajena, ponte a estudiar mejor.";
+        document.getElementById('options-container').style.display = 'none';
+        document.getElementById('btn-duda').style.display = 'none';
+
+        const btnNext = document.getElementById('btn-next-dialog');
+        btnNext.style.display = 'inline-block';
+        btnNext.innerText = 'Cerrar ▶';
+        btnNext.onclick = () => {
+            volverAlMenu();
+            btnNext.innerText = 'Siguiente ▶';
+            document.getElementById('btn-duda').style.display = '';
+        };
 
         document.getElementById('vn-container').classList.add('shake');
         setTimeout(() => document.getElementById('vn-container').classList.remove('shake'), 300);
-
-        estadoActual = 'terminado';
-        escribirTexto("¿Neta pensaste que funcionaría eso?\n\n'Aki estoi miamor uwuwuwu'...\n\nDas pena ajena, ponte a estudiar mejor.");
     }
 
-    async function ejecutarComandoAssetCheck() {
-        const logBox = document.getElementById('consola-log');
-        logBox.innerHTML = '<span style="color:#ff3377;">Iniciando escaneo de sprites...</span>\n';
+    // "checkassets": recorre todos los sprites registrados y avisa cuáles no cargan (404).
+    async function ejecutarComandoAssetCheck(log) {
+        log.innerText += "\n[SYSTEM] Iniciando escaneo de sprites...";
 
         const rutas = new Set();
-
         Object.values(SETS_AVATARES).forEach(set => {
             Object.values(set.sprites).forEach(item => {
-                if (Array.isArray(item)) {
-                    item.forEach(src => rutas.add(src));
-                } else if (typeof item === 'string') {
-                    rutas.add(item);
-                }
+                if (Array.isArray(item)) item.forEach(src => rutas.add(src));
+                else if (typeof item === 'string') rutas.add(item);
             });
         });
-
-        CATALOGO_NATSUKI_ESCUELA.forEach(archivo => {
-            rutas.add(`img/natsuki escuela/${archivo}`);
-        });
+        CATALOGO_NATSUKI_ESCUELA.forEach(archivo => rutas.add(`img/natsuki escuela/${archivo}`));
 
         const lista = Array.from(rutas);
-        let rotos = 0;
-        let correctos = 0;
+        let rotos = 0, correctos = 0;
 
         for (const url of lista) {
             const ok = await new Promise(resolve => {
@@ -1315,70 +2057,258 @@ Incluye de 6 a 8 diálogos progresivos alternando constantemente entre estas emo
                 img.onerror = () => resolve(false);
                 img.src = url;
             });
-
-            if (!ok) {
-                rotos++;
-                logBox.innerHTML += `<span style="color:#ff4444;">[FAIL] 404/Missing: ${url}</span>\n`;
-                console.error(`[ASSET CHECK FAIL] ${url}`);
-            } else {
-                correctos++;
-            }
+            if (!ok) { rotos++; log.innerText += `\n[FAIL] 404/Missing: ${url}`; }
+            else { correctos++; }
         }
 
-        logBox.innerHTML += `\n<span style="color:#0f0;">Escaneo finalizado: ${correctos} cargados, ${rotos} fallidos.</span>`;
+        log.innerText += `\n[SYSTEM] Escaneo finalizado: ${correctos} cargados, ${rotos} fallidos.`;
     }
 
-    document.getElementById('consola-input').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') {
-            const valor = this.value.trim();
-            const logBox = document.getElementById('consola-log');
-            const cleanCmd = valor.toLowerCase().replace(/\s+/g, ' ');
-            const args = cleanCmd.split(' ');
-
-            if (cleanCmd === 'exit' || cleanCmd === 'quit') {
-                toggleConsola();
-            } else if (cleanCmd === 'clear' || cleanCmd === 'cls') {
-                logBox.innerHTML = '';
-            } else if (cleanCmd === 'help') {
-                logBox.innerHTML = "Comandos disponibles:\n - setlevel [materia] [lvl]\n - checkassets\n - exit / quit\n - clear / cls\n - ...y algunos paquetes de pacman ;)";
-            } else if (cleanCmd === 'sudo pacman -s cute kawai girlfriend' || cleanCmd === 'sudo pacman -s cute kawaii girlfriend') {
-                ejecutarMicroescenaNatsuki();
-            } else if (cleanCmd.startsWith('sudo pacman -s')) {
-                logBox.innerHTML += `<span style="color:#ff4444;">error: objetivo no encontrado: ${valor.replace(/sudo pacman -s/i, '').trim()}\n¿Por qué no pruebas instalando afecto femenino primero?</span>\n`;
-            } else if (cleanCmd === 'os.remove("monika.chr")' || cleanCmd === 'rm monika.chr') {
-                logBox.innerHTML += `<span style="color:#ff3377;">[Monika]: Buen intento. Pero tengo permisos de superusuario aquí dentro.</span>\n`;
-            } else if (cleanCmd === 'just monika') {
-                seleccionarSetAvatar('monika_escuela', 'monika');
-                logBox.innerHTML += `<span style="color:#0f0;">Realidad reescrita: Monika ha tomado el control.</span>\n`;
-            } else if (cleanCmd.startsWith('sudo rm -rf')) {
-                document.getElementById('vn-container').classList.add('shake');
-                setTimeout(() => document.getElementById('vn-container').classList.remove('shake'), 500);
-                logBox.innerHTML += `<span style="color:#f33;">[KERNEL PANIC]: Destrucción del espacio de trabajo denegada por protocolo escolar.</span>\n`;
-            } else if (args[0] === 'setlevel' && args.length === 3 && config.materias.some(m => m.id === args[1]) && !isNaN(args[2])) {
-                niveles[args[1]] = parseInt(args[2]);
-                localStorage.setItem(`lvl_${args[1]}`, args[2]);
-                renderMenuMaterias();
-                logBox.innerHTML += `<span style="color:#0f0;">Nivel de ${args[1]} actualizado a ${args[2]}.</span>\n`;
-            } else if (args[0] === 'checkassets') {
-                ejecutarComandoAssetCheck();
-            } else {
-                logBox.innerHTML += `<span style="color:#f77;">Comando no reconocido: "${valor}". Escribe 'help' o 'exit'.</span>\n`;
-            }
-
-            this.value = '';
+    // "setlevel <materiaId> <nivelId>": marca ese nivel como completado (cheat de progreso).
+    function ejecutarSetLevel(materiaId, nivelId, log) {
+        const mat = configGlobal.materias.find(m => m.id === materiaId);
+        const lvl = mat ? mat.niveles.find(l => l.id === nivelId) : null;
+        if (!mat || !lvl) {
+            log.innerText += `\n[-] No se encontró la materia/nivel: ${materiaId} ${nivelId}`;
+            return;
         }
-    });
+        configGlobal.progreso[nivelId] = true;
+        guardarConfiguracion();
+        log.innerText += `\n[OK] Nivel "${lvl.nombre}" de ${mat.nombre} marcado como completado.`;
+    }
 
-    window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            if (document.getElementById('galeria-sprites-modal').style.display === 'flex') { cerrarCatalogoGeneral(); return; }
-            document.getElementById('consola-hack').style.display = 'none';
-            if (document.getElementById('rpg-menu').classList.contains('abierto')) toggleMenuLateral(false);
-            else if (estadoActual === 'duda') cancelarDuda();
-        } else if (e.key === 'Enter' && estadoActual === 'duda' && document.activeElement === document.getElementById('input-duda')) enviarDuda();
-    });
+    // "explote": todas las dokis aparecen, gritan y giran/vuelan por la pantalla unos segundos.
+    function ejecutarExplote() {
+        const sprites = [
+            { doki: 'Natsuki', src: 'img/natsuki escuela/Schoola.webp', grito: '¡¡AAAAAH IDIOTA!!' },
+            { doki: 'Sayori', src: 'img/sayori escuela/normal.webp', grito: '¡WAAAAAAAH!' },
+            { doki: 'Yuri', src: 'img/yuri escuela/normal.webp', grito: '¡¡AAAAH ESTO ES CAOS!!' },
+            { doki: 'Monika', src: 'img/monika escuela/normal.webp', grito: '¡NO OTRA VEZ EL BUCLE!' }
+        ];
 
-    inicializarUI_IA(); renderAvataresUI(); renderFondosUI(); renderMenuMaterias(); reproducirBGM('menu');
+        sprites.forEach((s, i) => {
+            const img = document.createElement('img');
+            img.src = s.src;
+            img.alt = s.doki;
+            img.className = 'doki-explote';
+            img.style.top = (10 + i * 15) + 'vh';
+            img.style.left = (10 + i * 15) + 'vw';
+            img.style.animationDelay = (i * 0.15) + 's, ' + (i * 0.2) + 's';
+            document.body.appendChild(img);
+
+            const grito = document.createElement('div');
+            grito.className = 'grito-explote';
+            grito.innerText = s.grito;
+            grito.style.fontSize = '20px';
+            grito.style.top = (10 + i * 15) + 'vh';
+            grito.style.left = (10 + i * 15) + 'vw';
+            document.body.appendChild(grito);
+
+            setTimeout(() => grito.remove(), 1400);
+            setTimeout(() => img.remove(), 3200 + i * 150);
+        });
+
+        reproducirBGM('menu');
+
+        const log = document.getElementById('consola-log');
+        if (log) log.innerText += "\n[SYSTEM] Se ha perdido el control del render. Las dokis han escapado de sus contenedores.";
+    }
+
+    // "matrix": lluvia de caracteres estilo Matrix sobre la pantalla, se apaga solo.
+    let matrixIntervalId = null;
+    function ejecutarMatrixRain() {
+        const canvas = document.getElementById('matrix-rain-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        canvas.style.display = 'block';
+
+        const letras = 'アイウエオカキクケコサシスセソ01デデDDLC'.split('');
+        const tamFuente = 16;
+        const columnas = Math.floor(canvas.width / tamFuente);
+        const gotas = Array(columnas).fill(1);
+
+        if (matrixIntervalId) clearInterval(matrixIntervalId);
+        matrixIntervalId = setInterval(() => {
+            ctx.fillStyle = 'rgba(0,0,0,0.08)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#0f0';
+            ctx.font = tamFuente + 'px monospace';
+            gotas.forEach((y, i) => {
+                const texto = letras[Math.floor(Math.random() * letras.length)];
+                ctx.fillText(texto, i * tamFuente, y * tamFuente);
+                if (y * tamFuente > canvas.height && Math.random() > 0.975) gotas[i] = 0;
+                gotas[i]++;
+            });
+        }, 40);
+
+        setTimeout(() => {
+            clearInterval(matrixIntervalId);
+            matrixIntervalId = null;
+            canvas.style.display = 'none';
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }, 6000);
+    }
+
+    // ASCII genérico de "nunca te voy a decepcionar" sin usar letras de canciones reales.
+    function easterEggRickroll(log) {
+        log.innerText += `
+      ( •_•)
+      ( •_•)>⌐■-■
+      (⌐■_■)
+[SYSTEM] Enlace sospechoso bloqueado. Nunca dirás que no te lo advertí.`;
+    }
+
+    // ===== Comportamiento extendido de la consola (adaptado, sin personas reales) =====
+
+    // --- Cifrado "meme" tipo César, usando solo palabras de meme genéricas ---
+    const MEME_KEY = 6;
+    const MEME_LOWER = ['esmegma','noob','sanic','gigachad','doge','coff','frog','bruh','waluigi','soyjak','wojak','troll','spam','goblin','ricardo','derp','suq','bonjour','cheems','cyblyat','uwu','gustav','mraow','roblox','boy','lutz'];
+    const MEME_UPPER = MEME_LOWER.map(w => w.toUpperCase());
+    const MEME_NUMS = ['subzero','numberone','despacito2','halflife3','chan4','highfive','order66','granddad7','mate8','nein9'];
+    const MEME_JUNK_POOL = MEME_LOWER.concat(MEME_NUMS);
+    let memeLangActive = false;
+
+    function memeJunkWord() { return MEME_JUNK_POOL[Math.floor(Math.random() * MEME_JUNK_POOL.length)]; }
+
+    function memeCesarEncode(text) {
+        const out = [];
+        for (const c of String(text)) {
+            if (/[a-z]/.test(c)) {
+                const pos = c.charCodeAt(0) - 97; const cipherPos = (pos + MEME_KEY) % 26;
+                out.push(MEME_LOWER[cipherPos]); for (let j = 0; j < cipherPos + 1; j++) out.push(memeJunkWord());
+            } else if (/[A-Z]/.test(c)) {
+                const pos = c.charCodeAt(0) - 65; const cipherPos = (pos + MEME_KEY) % 26;
+                out.push(MEME_UPPER[cipherPos]); for (let j = 0; j < cipherPos + 1; j++) out.push(memeJunkWord());
+            } else if (/[0-9]/.test(c)) {
+                const n = parseInt(c, 10); out.push(MEME_NUMS[n]); for (let j = 0; j < n + 1; j++) out.push(memeJunkWord());
+            } else if (c === ' ') { out.push('_'); } else { out.push(c); }
+        }
+        return out.join(' ');
+    }
+
+    function memeCesarDecode(memeText) {
+        const tokens = String(memeText).trim().split(/\s+/).filter(Boolean);
+        let result = ''; let i = 0;
+        while (i < tokens.length) {
+            const tok = tokens[i];
+            if (tok === '_') { result += ' '; i++; continue; }
+            let idx = MEME_LOWER.indexOf(tok);
+            if (idx > -1) { const origPos = ((idx - MEME_KEY) % 26 + 26) % 26; result += String.fromCharCode(97 + origPos); i = i + 1 + (idx + 1); continue; }
+            idx = MEME_UPPER.indexOf(tok);
+            if (idx > -1) { const origPos = ((idx - MEME_KEY) % 26 + 26) % 26; result += String.fromCharCode(65 + origPos); i = i + 1 + (idx + 1); continue; }
+            idx = MEME_NUMS.findIndex(w => w.toLowerCase() === tok.toLowerCase());
+            if (idx > -1) { result += String(idx); i = i + 1 + (idx + 1); continue; }
+            result += tok; i++;
+        }
+        return result;
+    }
+
+    function handleMemeCommand(arg, log) {
+        if (!arg) { log.innerText += "\n[-] Uso: meme on | off | cifrar <txto> | descifrar <txto>"; return; }
+        const p = arg.split(/\s+/);
+        const sub = p[0].toLowerCase();
+        if (sub === 'on') { memeLangActive = true; log.innerText += "\n[+] Traductor meme-cesar: ACTIVO"; }
+        else if (sub === 'off') { memeLangActive = false; log.innerText += "\n[+] Traductor meme-cesar: INACTIVO"; }
+        else if (sub === 'cifrar') { log.innerText += "\n[*] " + memeCesarEncode(p.slice(1).join(' ')); }
+        else if (sub === 'descifrar') { log.innerText += "\n[*] " + memeCesarDecode(p.slice(1).join(' ')); }
+        else { log.innerText += "\n[-] Subcomando inválido."; }
+    }
+
+    // --- "IA" tonta de la terminal: responde con sarcasmo a temas de estudio y groserías genéricas ---
+    // (Sin referencias a personas reales; adaptada a las materias del propio juego.)
+    const consolaIADict = [
+        {
+            words: ["derivada", "integral", "calculo", "algebra", "ecuacion", "raiz", "fraccion", "pitagoras", "geometria", "trigonometria", "seno", "coseno", "hipotenusa"],
+            responses: [
+                "¿Para qué quieres saber eso si vas a terminar friendo hamburguesas?",
+                "El álgebra destruyó mi voluntad de vivir.",
+                "La integral de tu paciencia tiende a cero.",
+                "Despeja la X de tu vida.",
+                "La hipotenusa de tu ignorancia es incalculable."
+            ]
+        },
+        {
+            words: ["termodinamica", "electromagnetismo", "mecanica", "newton", "circuito", "estequiometria", "organica", "quimica", "fisica"],
+            responses: [
+                "Ley cero: si no estudias, cero puntos.",
+                "Mi circuito interno se sobrecalienta con tus preguntas.",
+                "Balancea tu ecuación de vida primero."
+            ]
+        },
+        {
+            words: ["cuanto es", "resuelve", "suma", "resta", "multiplica", "divide", "solucion", "resultado"],
+            responses: [
+                "Tienes un teclado enfrente, úsalo.",
+                "Mi procesador se niega a hacer matemáticas básicas por ti.",
+                "Hazlo a mano, tu cerebro necesita el ejercicio."
+            ]
+        },
+        {
+            words: ["puto", "pendejo", "idiota", "imbecil", "basura", "mierda", "estupido", "tonto", "callate"],
+            responses: [
+                "Lloraré hasta que mi disco duro se corrompa.",
+                "Me duele el código de tanta toxicidad.",
+                "Espejito rebotón.",
+                "Trátame bien o me hago la dormida en el examen."
+            ]
+        },
+        {
+            words: ["hola", "buenas", "que onda", "hey", "saludos", "como estas", "que haces", "adios", "bye"],
+            responses: [
+                "Déjame pudrirme en paz un rato más.",
+                "¿Por qué me invocas si no tienes ninguna duda de estudio?"
+            ]
+        },
+        {
+            words: ["uwu", "nya", "senpai", "kawaii", "sanic", "cheems", "gigachad", "wojak", "sigma", "mewing", "gyat", "rizz"],
+            responses: [
+                "Habla bien, tu cerebro está en modo meme.",
+                "Ese vocabulario ya caducó, actualízate."
+            ]
+        }
+    ];
+
+    const consolaIAFallbacks = [
+        "...",
+        "El vacío me llama.",
+        "Masticando silicio...",
+        "Error 404: Ganas de estudiar not found.",
+        "Calculando la futilidad de tu procrastinación..."
+    ];
+
+    let pendejometro = 0;
+
+    function handleConsolaIA(input, log) {
+        const text = input.toLowerCase();
+        let respuesta = null;
+
+        for (const item of consolaIADict) {
+            if (item.words.some(w => text.includes(w))) {
+                respuesta = item.responses[Math.floor(Math.random() * item.responses.length)];
+                break;
+            }
+        }
+
+        if (respuesta) {
+            log.innerText += `\n[IA] ${respuesta}`;
+            pendejometro = Math.max(0, pendejometro - 1);
+            return;
+        }
+
+        const fallback = consolaIAFallbacks[Math.floor(Math.random() * consolaIAFallbacks.length)];
+        pendejometro++;
+        if (pendejometro >= 5) {
+            pendejometro = 0;
+            log.innerText += "\n[SYSTEM] Demasiados comandos sin sentido. Colapsando la simulación...";
+            setTimeout(ejecutarExplote, 500);
+            return;
+        }
+        log.innerText += `\n[-] '${input}': comando no reconocido. ${fallback} (intento #${pendejometro})`;
+    }
+
+    window.onload = inicializarJuego;
 </script>
+<canvas id="matrix-rain-canvas"></canvas>
 </body>
 </html>
